@@ -1,0 +1,45 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.4.6'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+
+// build.gradle 이클립스 2024-06 이후 버전에서 자꾸 Java 21로 강제 인식되고 17로 내려가면 오류를 뿜어내서 추가
+//    sourceCompatibility = '17' (이클립스에서는 해당항목 활성화)
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // JSP 관련 의존성
+    implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+    implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+    implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:2.0.0'
+    implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl:2.0.0'
+    // Spring Boot 및 MyBatis 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
+    // DB Connector(H2DB and MySQL)
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    // 테스트 관련 의존성
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
