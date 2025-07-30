@@ -9,6 +9,10 @@
 프로젝트 개발기간
 * 2025-07-07 ~ (진행중)
 
+개발환경
+* Windows 10, Windows 11
+* Intellij IDEA 2023.1.7
+
 사용기술
 * Java 17
 * Spring boot 3.4.6
