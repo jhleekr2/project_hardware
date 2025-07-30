@@ -2,12 +2,17 @@ package com.example.project_hardware.service;
 
 import com.example.project_hardware.dto.Board;
 import com.example.project_hardware.dto.BoardWithWriter;
+import com.example.project_hardware.dto.RequestList;
 import com.example.project_hardware.mapper.BoardMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BoardServiceImpl implements BoardService{
@@ -52,6 +57,26 @@ public class BoardServiceImpl implements BoardService{
     @Override
     public void boardDelete(int boardNo) {
         boardMapper.boardDelete(boardNo);
+    }
+
+    // 전체 게시물을 조회하는 대신 페이징을 적용하여 게시물 작성자까지 포함하여 조회
+    // Pageable API를 써보려고 시도했음 - 실패!(프론트코드 엎어야하고, DB FULL SCAN 발생)
+    @Override
+    public Page<Map<String, Object>> getListBoard(BoardWithWriter board, Pageable pageable) {
+
+        // 빌더 패턴으로 data, pageable 파라미터에 데이터 주입
+        RequestList<?> requestList = RequestList.builder()
+                .data(board)
+                .pageable(pageable)
+                .build();
+
+        List<Map<String, Object>> result = boardMapper.viewBoardPage(requestList);
+
+        int total = boardMapper.viewBoardCount(board);
+
+        //List<Map<String, Object>> page = PageImpl<>(result, pageable, total);
+
+        return new PageImpl<>(result, pageable, total);
     }
 
 

@@ -7,27 +7,52 @@
     fetch("/api/v1/board").then(response => response.json())
         .then(list => {
             boardList.innerHTML = '';//기존메뉴목록을 초기화
-            list.forEach(item =>{
+            console.log(list);
+            console.log(list.content);
+            console.log(list.page);
+            // list.forEach(item =>{
+            //     //각 메뉴 아이템을 생성해서 리스트에 추가
+            //     const boardItem = document.createElement('tr');
+            //     boardItem.className='board-item';
+            //     boardItem.innerHTML=`
+            //             <th></th>
+            //             <th>${item.boardNo}</th>
+            //             <th>${item.userNum}</th>
+            //             <th>${item.writeDate}</th>
+            //             <th><a href="#" class="board-link" style="text-decoration:none;color:black;">${item.title}</a></th>
+            //             <th>${item.hit}</th>
+            //         `
+            //     //게시글을 메인페이지에서 하나씩 클릭할때
+            //     boardItem.querySelector(".board-link").addEventListener('click',(event)=>{
+            //         event.preventDefault();
+            //         console.log(`event:${event}`);
+            //         //EL JSTL 쓸때 반드시 tab키 위의 따옴표로 둘러싸자(ES6)
+            //         incrementCount(item.boardNo).then(() =>window.location.href=`/bbs/view/${item.boardNo}`)
+            //     });
+            //     boardList.appendChild(boardItem);
+            // })
+            list.content.forEach(content =>{
                 //각 메뉴 아이템을 생성해서 리스트에 추가
                 const boardItem = document.createElement('tr');
                 boardItem.className='board-item';
                 boardItem.innerHTML=`
                         <th></th>
-                        <th>${item.boardNo}</th>
-                        <th>${item.userNum}</th>
-                        <th>${item.writeDate}</th>
-                        <th><a href="#" class="board-link" style="text-decoration:none;color:black;">${item.title}</a></th>
-                        <th>${item.hit}</th>
+                        <th>${content.boardNo}</th>
+                        <th>${content.userNum}</th>
+                        <th>${content.writeDate}</th>
+                        <th><a href="#" class="board-link" style="text-decoration:none;color:black;">${content.title}</a></th>
+                        <th>${content.hit}</th>
                     `
                 //게시글을 메인페이지에서 하나씩 클릭할때
                 boardItem.querySelector(".board-link").addEventListener('click',(event)=>{
                     event.preventDefault();
                     console.log(`event:${event}`);
                     //EL JSTL 쓸때 반드시 tab키 위의 따옴표로 둘러싸자(ES6)
-                    incrementCount(item.boardNo).then(() =>window.location.href=`/bbs/view/${item.boardNo}`)
+                    incrementCount(content.boardNo).then(() =>window.location.href=`/bbs/view/${content.boardNo}`)
                 });
                 boardList.appendChild(boardItem);
             })
+
         })
     //백엔드단에서 프론트단 데이터 가져온다
 }

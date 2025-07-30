@@ -7,6 +7,11 @@ import com.example.project_hardware.service.BoardService;
 import com.example.project_hardware.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -17,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -38,7 +44,7 @@ public class BoardRestController {
     //게시글 CRUD 관련 API (백엔드 서버는 앞으로 RESTAPI 방식으로 게시글을 조회하고 생성, 조회, 수정, 삭제를 할 것이다.)
     //하드웨어 커뮤니티 CRUD API v1.0 (2025.07.13-)
 
-    @GetMapping("/api/v1/board")
+    @GetMapping("/api/v1e/board")
     public ResponseEntity<List<Board>> getAllBoard() {
         // 전체 게시물 조회
         List<Board> list = boardService.list();
@@ -47,6 +53,24 @@ public class BoardRestController {
         } else {
             return ResponseEntity.noContent().build();//상태코드 204번 NoContent 반환
         }
+    }
+
+    //
+    @GetMapping("/api/v1/board")
+    public ResponseEntity<?> getPagingBoard(BoardWithWriter board, @RequestParam(required = false, defaultValue = "0") int page) {
+        // 페이징 기본 설정 @PageableDefault(size = 10)
+
+        // Page index must not be less than zero 에러 처리위한 로직(page가 0보다 작을 경우에는 자동으로 0페이지로 간주한다)
+        if(page <= 0) {
+            page = 0;
+        }
+
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("boardNo").descending());
+
+        // 페이징 게시물 조회
+        Page<Map<String, Object>> list = boardService.getListBoard(board, pageable);
+
+        return ResponseEntity.ok(list);
     }
 
     @PostMapping("/api/v1/write")

@@ -15,8 +15,7 @@ CREATE TABLE `board` (
 	`user_num`	int	NOT NULL,
 	`write_date`	date	not NULL,
 	`title`	varchar(100)	NULL,
-	`content`	text,
-    `hit` int
+	`content`	text
 );
 
 CREATE TABLE `comment` (
@@ -44,7 +43,7 @@ CREATE TABLE `users` (
 	`user_num`	int	NOT NULL,
 	`ID`	varchar(20) not NULL,
 	`nick`	varchar(20) not NULL,
-	`password`	varchar(255) not	NULL,
+	`password`	varchar(50) not	NULL,
 	`email`	 varchar(50) not NULL,
 	`ban`	varchar(2),
 	`ban_date`	date
@@ -62,33 +61,6 @@ CREATE TABLE `comment_recommend` (
 	`recommend_num`	int not NULL
 );
 
-ALTER TABLE users 
-CHANGE COLUMN `user_num` `user_num` INT NOT NULL AUTO_INCREMENT ,
-ADD PRIMARY KEY (`user_num`);
-;
-ALTER TABLE users
-ADD COLUMN `role` VARCHAR(20);
-ALTER TABLE usersuploadfileboard_recommend
-MODIFY COLUMN `role` VARCHAR(20) DEFAULT 'MEMBER';
-ALTER TABLE users
-MODIFY COLUMN `password` VARCHAR(255);
-// password는 일반적으로 VARCHAR(255)가 관례처럼 사용된다
-// 이유는 BCrypt로 암호화하면 58-60바이트의 암호화된 문자열로 저장되어 50바이트로는 부족하고
-// 향후 더 강한 암호화 알고리즘으로 바꾸면 용량이 더 커지기 떄문이다
-;
-ALTER TABLE board
-MODIFY COLUMN board_no INT NOT NULL AUTO_INCREMENT PRIMARY KEY;
-ALTER TABLE board
-ADD COLUMN `hit` int;
-ALTER TABLE board
-MODIFY COLUMN write_date DATETIME;
-
-INSERT into board(user_num, write_date, title, content, hit) VALUES (1, NOW(), "환영합니다", "첫번째 게시물입니다", 0);
-select * from board;
-INSERT into board(user_num, write_date, title, content, hit) values (1, NOW(), "테스트 중입니다", "두번째", 0);
-delete from board where board_no = 1;
-
-// 테이블 연관관계 걸기
 ALTER TABLE `nestedcomment_recommend` ADD CONSTRAINT `PK_NESTEDCOMMENT_RECOMMEND` PRIMARY KEY (
 	`ID`
 );

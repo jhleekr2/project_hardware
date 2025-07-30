@@ -2,9 +2,11 @@ package com.example.project_hardware.mapper;
 
 import com.example.project_hardware.dto.Board;
 import com.example.project_hardware.dto.BoardWithWriter;
+import com.example.project_hardware.dto.RequestList;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface BoardMapper {
@@ -32,4 +34,13 @@ public interface BoardMapper {
 
     @Delete("DELETE from board where board_no = #{boardNo}")
     void boardDelete(int boardNo);
+
+    //페이징 API 이용한 구현 시도 - 실패!(낮은 성능, 복잡한 디자인 패턴 사용, 프론트코드 엎어야함)
+    //다시 연구를 해보자
+    //이 부분의 쿼리 한정으로 동적 쿼리 지원을 위하여 XML 파일을 하나 만들어보자
+    //@Select("SELECT a.board_no as boardNo, a.user_num as userNum, a.write_date as writeDate, a.title, a.content, a.hit, b.id, b.nick FROM board as a LEFT OUTER JOIN users as b on a.user_num = b.user_num LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}")
+    List<Map<String, Object>> viewBoardPage(RequestList<?> requestList);
+
+    //@Select("SELECT count(*) as cnt from board")
+    int viewBoardCount(BoardWithWriter board);
 }

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.project_hardware.mapper.BoardMapper">
+    <select id="viewBoardPage" parameterType="RequestList" resultType="BoardWithWriter">
+        SELECT a.board_no as boardNo
+        , a.user_num as userNum
+        , a.write_date as writeDate
+        , a.title
+        , a.content
+        , a.hit
+        , b.id
+        , b.nick
+        FROM board as a
+        LEFT OUTER JOIN users as b on a.user_num = b.user_num
+        <where>
+            <if test="data.title != null and data.title != ''">
+                AND TITLE LIKE '%' || #{data.title} || '%'
+            </if>
+            <if test="data.nick != null and data.nick != ''">
+                AND NICK LIKE '%' || #{data.nick} || '%'
+            </if>
+        </where>
+        <if test="pageable.sort.sorted">
+            <choose>
+                <when test="pageable.sort.get().findFirst().get().property == 'boardNo'">
+                    ORDER BY a.board_no ${pageable.sort.get().findFirst().get().direction}
+                </when>
+                <when test="pageable.sort.get().findFirst().get().property == 'writeDate'">
+                    ORDER BY a.write_date ${pageable.sort.get().findFirst().get().direction}
+                </when>
+                <otherwise>
+                    ORDER BY a.board_no DESC </otherwise>
+            </choose>
+        </if>
+        <if test="!pageable.sort.sorted">
+            ORDER BY a.board_no DESC </if>
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+
+    </select>
+
+    <select id="viewBoardCount" parameterType="BoardWithWriter" resultType="int">
+        SELECT COUNT(*) AS CNT
+        FROM BOARD as a
+        LEFT OUTER JOIN users as b on a.user_num = b.user_num
+        <where>
+            <if test="title != null and title != ''">
+                AND TITLE LIKE '%' || #{title} || '%'
+            </if>
+            <if test="nick != null and nick != ''">
+                AND WRITER LIKE '%' || #{nick} || '%'
+            </if>
+        </where>
+    </select>
+
+</mapper>
