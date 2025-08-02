@@ -105,7 +105,7 @@ public class BoardRestController {
         // for(꺼내는 자료형(String, int 등) 매개변수명 : 컬렉션명)
         // foreach 구문 쓰면 N+1문제 발생하기 떄문에 대신 동적 쿼리를 쓴다.
 
-        // 삭제된 파일 목록 제거
+        // 삭제된 파일 제거 - 저장소에서 삭제하고, DB에서도 제거한다.
         fileService.deleteFile(uploadPathImg, deletedfiles);
 
         // 게시글 작성하여 DB에 반영
@@ -127,10 +127,18 @@ public class BoardRestController {
         return savefilename;
     }
 
-    @PostMapping("/api/v1/delimg")
-    public String deleteImg() {
+    @PostMapping("/api/v1/rollback")
+    public ResponseEntity<String> rollbackImgUpload(@RequestBody BoardWithFile boardWithFile) {
+        // 이 메서드는 게시물 작성을 취소할때 미리 업로드되었던 이미지 파일의 업로드 정보를 삭제하는 로직을 작성한다.
+        // 기본적으로 게시물 작성 로직에서 에디터에서 삭제한 파일을 처리하는 코드를 그대로 사용하기만 하면 된다.
 
-        return null;
+        // 업로드한 파일 목록 꺼내기
+        List<String> uploadfiles = boardWithFile.getUploadfile();
+
+        // 업로드한 파일 전부 제거 - 저장소에서 삭제하고, DB에서도 제거한다.
+        fileService.deleteFile(uploadPathImg, uploadfiles);
+
+        return ResponseEntity.ok("게시물 작성 취소 성공");
     }
 
 

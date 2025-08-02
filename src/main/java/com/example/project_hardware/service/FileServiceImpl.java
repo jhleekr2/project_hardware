@@ -88,19 +88,19 @@ public class FileServiceImpl implements FileService{
     public void deleteFile(String path, List<String> deletedfiles) {
         //foreach 문을 통해 삭제할 파일마다 파일 객체 생성한다.
         for(String s : deletedfiles) {
-            //전체 파일 경로 생성 - 환경설정에 따른 파일 저장 경로 + 프론트로부터 전달받은 삭제된 파일명
+            //전체 파일 경로 생성 - 환경설정에 따른 파일 저장 경로 + 프론트로부터 전달받은 삭제할 파일명
             String dest = path + s;
             File file = new File(dest);;
             //System.out.println(dest);
             dest = path;
-            // 저장공간에 있는 고아 파일 삭제
+            // 저장공간에 있는 파일 삭제
             file.delete();
         }
 
         //마이바티스가 파일이 없을때 자꾸 에러를 띄워서 확인해본 결과 파일이 없을때 List<String> deletedfiles는
         //null(기댓값)이 아닌 [](실측값)이 리턴됨.
         //따라서 마이바티스의 테스트 조건 비정상 작동을 부름
-        System.out.println("삭제할 파일의 이름은 "+ deletedfiles +"입니다.");
+        //System.out.println("삭제할 파일의 이름은 "+ deletedfiles +"입니다.");
         // DB에서도 파일 정보 삭제
         fileMapper.deleteImg(deletedfiles);
 

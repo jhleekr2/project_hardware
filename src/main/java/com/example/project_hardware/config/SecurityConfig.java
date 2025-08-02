@@ -41,7 +41,7 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, "/login", "/register").permitAll()
                         .requestMatchers("/resources/**", "/WEB-INF/**").permitAll()
-                        .requestMatchers("/api/v1/board", "/api/v1/boardView/**", "/api/v1/delete/**", "/api/v1e/board").permitAll()
+                        .requestMatchers("/api/v1/board", "/api/v1/boardView/**", "/api/v1/delete/**", "/api/v1e/board", "/ap1/v1/rollback").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/v1/count/**").permitAll()
                         .requestMatchers("/bbs/insert", "/bbs/update/**").hasAnyAuthority("ADMIN", "MANAGER", "MEMBER")
                         .requestMatchers(HttpMethod.POST, "/api/v1/write", "/api/v1/uploadimg").hasAnyAuthority("ADMIN", "MANAGER", "MEMBER")

@@ -40,7 +40,7 @@
 
             <input type="hidden" id="writeDate" name="writeDate">
             <input type="hidden" id="hit" name="hit">
-            <button type="button" id="buttonSubmit">확인</button>
+            <button type="button" id="buttonSubmit">확인</button> <p> <button type="button" id="buttonCancel">취소</button>
         </div>
     </div>
 </form>
@@ -157,6 +157,59 @@
             console.log("Error가 발생",error);
         });
     });
+
+    document.getElementById("buttonCancel").addEventListener("click", function() {
+        // 취소 버튼을 눌렀을때 동작 - 이때는 업로드 시도한 모든 이미지 파일을 삭제하는 로직으로 작동한다.
+        // 이미 DB에 기록된 내용은 파일부분만 있기 때문에 그 부분만을 formdata로 해서 전송을 하자.
+        const formData = {
+            uploadfile: uploadedImageUrls
+        }
+
+        fetch("/api/v1/rollback",{
+            method:"POST",
+            headers:{
+                'Content-Type':'application/json',
+            },
+            body: JSON.stringify(formData)
+        }).then(response =>{
+            if(!response.ok){
+                throw new Error("게시물 롤백 실패.")
+            }
+            return response.text();
+        }).then(_=> {
+            console.log("Success");
+            window.location.href="/bbs/board" // 이전 페이지로 이동
+        }).catch(error=>{
+            console.log("Error가 발생",error);
+        });
+    });
+
+    window.addEventListener('beforeunload', function() {
+        // 사이트에서 빠져나갈 때 동작 - 이때도 업로드 시도한 모든 이미지 파일을 삭제하는 로직으로 작동한다.
+        // 이미 DB에 기록된 내용은 파일부분만 있기 때문에 그 부분만을 formdata로 해서 전송을 하자.
+        const formData = {
+            uploadfile: uploadedImageUrls
+        }
+
+        fetch("/api/v1/rollback",{
+            method:"POST",
+            headers:{
+                'Content-Type':'application/json',
+            },
+            body: JSON.stringify(formData)
+        }).then(response =>{
+            if(!response.ok){
+                throw new Error("게시물 롤백 실패.")
+            }
+            return response.text();
+        }).then(_=> {
+            console.log("Success");
+            //window.location.href="/bbs/board" // 사이트 납치 태그가 될수 있기에 주석처리
+        }).catch(error=>{
+            console.log("Error가 발생",error);
+        });
+    });
+
 
     async function rollbackUploadedImages() {
         if (uploadedImageUrls.length === 0) {
