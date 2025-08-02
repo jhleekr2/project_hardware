@@ -50,6 +50,11 @@
 <!-- TUI 에디터 JS CDN -->
 <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
 <script>
+    // 업로드된 이미지 URL 저장 배열
+    let uploadedImageUrls = [];
+    // 에디터에서 최종적으로 사용된 이미지 URL 저장 배열
+    let usedImageUrls = [];
+
     const editor = new toastui.Editor({
         el: document.querySelector('#content'), // 에디터를 적용할 요소 (컨테이너)
         height: '500px',                        // 에디터 영역의 높이 값 (OOOpx || auto)
@@ -82,6 +87,9 @@
                     const imageUrl = `/img/\${filename}`;
                     callback(imageUrl, 'image alt attribute');
 
+                    // 5. 프론트엔드에 업로드된 이미지의 URL을 저장
+                    uploadedImageUrls.push(filename);
+
                 } catch (error) {
                     console.error('업로드 실패 : ', error);
                 }
@@ -93,13 +101,36 @@
     document.getElementById("buttonSubmit").addEventListener("click", function() {
         const editorContent = editor.getHTML(); // HTML 형식으로 가져옴
 
+        // 여기서 HTML코드를 파싱하여 최종적으로 업로드되는 이미지 파일만 찾는다.
+        // 그리하여 최종적으로 업로드되는 이미지 파일만을 유효화하는 절차를 밟는다.
+        // 유효화되지 않은 이미지 파일은 정기적인 스케줄러 관리에 의해 삭제한다.
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = editorContent;
+        const images = tempDiv.querySelectorAll('img');
+
+        // <img> 태그의 src 속성에서 파일명만 추출
+        images.forEach(img => {
+            const src = img.getAttribute('src');
+            if (src && src.startsWith('/img/')) {
+                const filename = src.substring(src.lastIndexOf('/') + 1);
+                usedImageUrls.push(filename);
+            }
+        });
+
+        // 업로드된 전체 이미지 목록에서 최종적으로 업로드되지 않은 목록만 필터링
+        const deletedImageUrls = uploadedImageUrls.filter(filename => !usedImageUrls.includes(filename));
+
         const formData = {
             userNum:document.getElementById("userNum").value,
             id:document.getElementById("id").value,
             title:document.getElementById("title").value,
             //content:document.getElementById("content").value,
             content:editorContent,
-            nick:document.getElementById("nick").value
+            nick:document.getElementById("nick").value,
+            //업로드한 파일 이름을 다시 전송
+            //이때 불필요한 이미지파일(초기 업로드했으나, 편집에서 나중에 지운 이미지파일)을 지우는 로직을 추가하기 위해
+            uploadfile:uploadedImageUrls,
+            deletedfile:deletedImageUrls
         }
         //indate:new Date().toISOString().split("T")[0], 의 의미를 알 필요가 있다.
         //index.jsp파일에서 만들 메타 CSRF 태그 두개를 js파일로 가져온다.
@@ -126,6 +157,34 @@
             console.log("Error가 발생",error);
         });
     });
+
+    async function rollbackUploadedImages() {
+        if (uploadedImageUrls.length === 0) {
+            console.log("롤백할 이미지가 없습니다.");
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/v1/rollback_images', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ filenames: uploadedImageUrls }),
+                // keepalive 옵션 추가: 페이지가 언로드될 때 요청이 취소되지 않고 계속 진행되도록 시도
+                keepalive: true
+            });
+
+            if (!response.ok) {
+                console.error("이미지 롤백 실패 (keepalive 요청).");
+            } else {
+                console.log("업로드된 이미지가 성공적으로 롤백되었습니다 (keepalive 요청).");
+                uploadedImageUrls = [];
+            }
+        } catch (error) {
+            console.error("이미지 롤백 중 오류 발생 (keepalive 요청) : ", error);
+        }
+    }
 
 
 </script>

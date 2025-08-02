@@ -1,9 +1,8 @@
 package com.example.project_hardware.controller;
 
-import com.example.project_hardware.dto.Board;
-import com.example.project_hardware.dto.BoardWithWriter;
-import com.example.project_hardware.dto.Users;
+import com.example.project_hardware.dto.*;
 import com.example.project_hardware.service.BoardService;
+import com.example.project_hardware.service.FileService;
 import com.example.project_hardware.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +14,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,13 +33,16 @@ public class BoardRestController {
     //URL과 실제 파일 위치를 연결(매핑)하는 식으로 파일을 관리한다.
     // application.properties 에서 설정한 업로드 폴더 경로 주입하여 uploadPath에 넣음
     @Value("${board.imgdir}")
-    private String uploadPath;
+    private String uploadPathImg;
 
     @Autowired
     BoardService boardService;
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    FileService fileService;
 
     //게시글 CRUD 관련 API (백엔드 서버는 앞으로 RESTAPI 방식으로 게시글을 조회하고 생성, 조회, 수정, 삭제를 할 것이다.)
     //하드웨어 커뮤니티 CRUD API v1.0 (2025.07.13-)
@@ -74,7 +77,8 @@ public class BoardRestController {
     }
 
     @PostMapping("/api/v1/write")
-    public ResponseEntity<String> boardWrite(Authentication authentication, @RequestBody Board board) {
+    @Transactional //게시글 쓰기 로직 전체를 하나의 트랜잭션으로 묶음
+    public ResponseEntity<String> boardWrite(Authentication authentication, @RequestBody BoardWithFile boardWithFile) {
         // @RequestBody Board board를 통해 프론트의 입력 Form에서 값이 전달되어 입력
         // 스프링 프레임워크에 의해 전달되는 것
         // 현재 로그인된 사용자 정보를 본래 세션의 HttpSession을 통해 전달하려 하였으나 대신 스프링 시큐리티를 활용해보자
@@ -83,7 +87,29 @@ public class BoardRestController {
 
         // https://congsong.tistory.com/68 참고하여 스프링 부트 파일 업로드 구현해본다
 
-        boardService.boardWrite(board);
+        // 게시물 업로드 전에 최종 확인 전 삭제된 파일 처리부터 우선시한다.
+
+        // 업로드한 파일 목록 꺼내기
+        List<String> uploadfiles = boardWithFile.getUploadfile();
+        // 그중 최종 확인 전에 삭제된 파일 목록 꺼내기
+        List<String> deletedfiles = boardWithFile.getDeletedfile();
+        //List<String> remainedfiles = new ArrayList<>();
+        //업로드한 파일 목록에서 삭제된 파일 목록을 제거하고 남은 파일 목록 만들기
+        uploadfiles.removeAll(deletedfiles);
+        // 남은 파일 목록을 기존의 boardWithFile에 대입
+        boardWithFile.setUploadfile(uploadfiles);
+
+        // foreach 구문을 통해서 업로드한 파일들을 DB에서 유효화
+        // for(String u : uploadfiles)
+        // foreach 문 복습
+        // for(꺼내는 자료형(String, int 등) 매개변수명 : 컬렉션명)
+        // foreach 구문 쓰면 N+1문제 발생하기 떄문에 대신 동적 쿼리를 쓴다.
+
+        // 삭제된 파일 목록 제거
+        fileService.deleteFile(uploadPathImg, deletedfiles);
+
+        // 게시글 작성하여 DB에 반영
+        int boardNo = boardService.boardWrite(boardWithFile);
 
         return ResponseEntity.ok("게시물 작성 성공");
     }
@@ -91,49 +117,22 @@ public class BoardRestController {
     @PostMapping("/api/v1/uploadimg")
     public String uploadImg(@RequestParam("image") MultipartFile image) {
         //에디터를 통한 이미지 파일 업로드 API(앞으로 첨부파일 업로드 로직도 비슷하게 만들 것으로 예상)
-        //저장 폴더 객체 생성
-        //final String uploadDir = uploadPath;
-        File uploaddir = new File(uploadPath);
+        //더 나아가서 공통의 코드를 이용하여 이미지와 첨부파일 모두를 업로드하도록 설계를 변경할 생각
 
-        //저장할 폴더가 없으면 생성한다
-        if(!uploaddir.exists()) {
-            uploaddir.mkdirs(); //상위 폴더까지 모두 생성
-            // mkdir()은 부모 없으면 실해, mkdirs()는 부모까지 생성
-        }
+        //파일 업로드 모듈 호출(업로드하고자 하는 폴더, 업로드하고자 하는 파일)
+        //반환은 저장 파일 이름
+        //업로드가 실패하면 대신 RuntimeException 반환된다.
+        String savefilename = fileService.uploadFile(uploadPathImg, image);
 
-        // 원본 파일명
-        String orgFilename = image.getOriginalFilename();
-        // 확장자
-        String extension = orgFilename.substring(orgFilename.lastIndexOf(".") + 1);
-        String uuid;
-        String saveFilename;
-        String uploadFile;
-        File dest = null;
-
-        try {
-
-            // UUID 중복파일이 있을때 처리하는 로직
-            // 이미 파일이 존재하는지 확인하고 존재한다면 uuid를 새로 만든다
-            do {
-                // 32자리 랜덤 문자열
-                uuid = UUID.randomUUID().toString().replaceAll("-", "");
-                // 디스크에 저장할 파일명
-                saveFilename = uuid + "." + extension;
-                // 저장되는 파일명
-                uploadFile = Paths.get(uploadPath, saveFilename).toString();
-                // 저장 파일 객체 생성
-                dest = new File(uploadFile);
-            } while (dest.exists());
-
-            // 목적지에 파일 저장
-            image.transferTo(dest);
-            // API로서 저장된 파일이름을 반환하고 클라이언트에서 서버에 저장된 파일명을 그대로 받음
-            return saveFilename;
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return savefilename;
     }
+
+    @PostMapping("/api/v1/delimg")
+    public String deleteImg() {
+
+        return null;
+    }
+
 
     @PutMapping("/api/v1/count/{boardNo}")
     public void incrementBoardCount(@PathVariable("boardNo") int boardNo) {

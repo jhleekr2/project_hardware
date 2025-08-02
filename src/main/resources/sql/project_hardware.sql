@@ -61,6 +61,17 @@ CREATE TABLE `comment_recommend` (
 	`recommend_num`	int not NULL
 );
 
+CREATE TABLE `uploadimg` (
+    `board_no` int,
+    `filename_ori` varchar(50) not null,
+    `filename_saved` varchar(50) not null
+);
+
+ALTER TABLE `project_hardware`.`uploadimg`
+    CHANGE COLUMN `filename_saved` `filename_saved` VARCHAR(50) NOT NULL ,
+    ADD PRIMARY KEY (`filename_saved`);
+;
+
 ALTER TABLE `nestedcomment_recommend` ADD CONSTRAINT `PK_NESTEDCOMMENT_RECOMMEND` PRIMARY KEY (
 	`ID`
 );

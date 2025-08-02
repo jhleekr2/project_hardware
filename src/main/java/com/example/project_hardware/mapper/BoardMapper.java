@@ -23,8 +23,10 @@ public interface BoardMapper {
     @Update("UPDATE board set hit = hit + 1 where board_no = #{boardNo}")
     void addBoardCount(int boardNo);
 
-    @Insert("INSERT INTO board(user_num, write_date, title, content, hit) VALUES (#{userNum}, NOW(), #{title}, #{content}, 0)")
-    void addBoardList(Board board);
+    //@Insert("INSERT INTO board(user_num, write_date, title, content, hit) VALUES (#{userNum}, NOW(), #{title}, #{content}, 0)")
+    // 게시글 만들고 만든 게시글 글번호로 업로드파잃 활성화해야함
+    // 따라서 글번호 반환하는등 복잡한 설정해야해서 XML로 코드 이관
+    int addBoardList(Board board);
 
     @Select("SELECT a.board_no as boardNo, a.user_num as userNum, a.write_date as writeDate, a.title, a.content, a.hit, b.id, b.nick FROM board as a LEFT OUTER JOIN users as b on a.user_num = b.user_num WHERE board_no = #{boardNo}")
     BoardWithWriter viewBoardDetail(int boardNo);

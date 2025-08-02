@@ -54,4 +54,9 @@
         </where>
     </select>
 
+    <insert id="addBoardList" parameterType="Board" useGeneratedKeys="true" keyProperty="boardNo" keyColumn="board_no">
+        INSERT INTO board(user_num, write_date, title, content, hit)
+        VALUES (#{userNum}, NOW(), #{title}, #{content}, 0)
+    </insert>
+
 </mapper>
