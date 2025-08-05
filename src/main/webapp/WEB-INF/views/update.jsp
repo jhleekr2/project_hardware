@@ -42,6 +42,19 @@
     const boardItem = document.getElementById("boardItem");
     const boardNo = window.location.pathname.split('/').pop();
 
+    // 업로드된 이미지 URL 저장 배열
+    let uploadedImageUrls = [];
+    // 에디터에서 최종적으로 사용된 이미지 URL 저장 배열
+    let usedImageUrls = [];
+    // let usedImageUrls = new Set();
+    // 중복을 불가하게 Set을 사용함.
+
+    // 에디터에서 삭제한 이미지 URL 저장 배열
+    let deletedImageUrls = [];
+
+    // 롤백할때 사용할 이미지 URL 저장 배열(삭제 여부와 상관없이 나중에 업로드한 이미지 URL 저장 배열
+    let rollbackImageUrls = [];
+
     function fetchDetail() {
         fetch(`/api/v1/boardView/${boardNo}`).then(response => response.json())
             .then(board => { // 백엔드에서 받은 Board 객체가 board로 들어옴.
@@ -84,7 +97,7 @@
                 <br>
                 <label for="hit">조회수</label>
                 <br>
-                <button type="button" id="buttonSubmit">수정된 게시물 적용</button>
+                <button type="button" id="buttonSubmit">수정된 게시물 적용</button>  <p> <button type="button" id="buttonCancel">취소</button>
             `;
                 // 생성된 요소를 페이지에 추가
                 boardItem.appendChild(detailElement);
@@ -121,6 +134,12 @@
                                 const imageUrl = `/img/\${filename}`;
                                 callback(imageUrl, 'image alt attribute');
 
+                                // 5. 프론트엔드에 업로드된 이미지의 URL을 저장
+                                uploadedImageUrls.push(filename);
+
+                                // 6. 게시글 수정할때는 롤백을 대비해서 나중에 업로드된 이미지의 URL만을 따로 저장한다.
+                                // 이후 롤백을 할때 나중에 업로드된 이미지 URL 저장 변수를 전송하도록 한다.
+                                rollbackImageUrls.push(filename);
                             } catch (error) {
                                 console.error('업로드 실패 : ', error);
                             }
@@ -130,13 +149,59 @@
 
                 });
 
+                // 최초 로딩때 HTML 코드 파싱
+                // 최조에 사용되어 있는 이미지 파일들을 uploadedImageUrls에 넣음
+                // 이는 최초 로딩때 해당 이미지 파일들은 이미 업로드 되어 있기 때문임
+
+                const editorContent = editor.getHTML();
+
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = editorContent;
+                const images = tempDiv.querySelectorAll('img');
+
+                // <img> 태그의 src 속성에서 파일명만 추출
+                images.forEach(img => {
+                    const src = img.getAttribute('src');
+                    if (src && src.startsWith('/img/')) {
+                        const filename = src.substring(src.lastIndexOf('/') + 1);
+                        uploadedImageUrls.push(filename);
+                    }
+                });
+
                 //게시물 수정 비동기 처리
                 document.getElementById("buttonSubmit").addEventListener("click", function() {
                     const editorContent = editor.getHTML(); // HTML 형식으로 가져옴
 
+                    // 여기서 HTML코드를 파싱하여 최종적으로 업로드되는 이미지 파일만 찾는다.
+                    // 그리하여 최종적으로 업로드되는 이미지 파일만을 유효화하는 절차를 밟는다.
+                    // 유효화되지 않은 이미지 파일은 정기적인 스케줄러 관리에 의해 삭제한다.
+
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = editorContent;
+                    const images = tempDiv.querySelectorAll('img');
+
+                    // <img> 태그의 src 속성에서 파일명만 추출
+                    images.forEach(img => {
+                        const src = img.getAttribute('src');
+                        if (src && src.startsWith('/img/')) {
+                            const filename = src.substring(src.lastIndexOf('/') + 1);
+                            usedImageUrls.push(filename);
+                        }
+                    });
+
+                    // 업로드된 전체 이미지 목록에서 최종적으로 업로드되지 않은 목록만 필터링
+                    deletedImageUrls = uploadedImageUrls.filter(filename => !usedImageUrls.includes(filename));
+
+                    // 어차피 DB와는 게시물 생성할때 게시글 내용과 DB의 업로드 이미지 파일이 동기화되어 있기 때문에
+                    // 게시글 수정할때의 이미지 파일 생명주기 관리도 게시글 생성할때와 동일하게 관리하면 된다.
+
                     const formData = {
                         title:document.getElementById("title").value,
-                        content:editorContent
+                        content:editorContent,
+                        //업로드한 파일 이름을 다시 전송
+                        //이때 불필요한 이미지파일(초기 업로드했으나, 편집에서 나중에 지운 이미지파일)을 지우는 로직을 추가하기 위해
+                        uploadfile:uploadedImageUrls,
+                        deletedfile:deletedImageUrls
                     }
 
                     fetch(`/api/v1/modify/${boardNo}`,{
@@ -152,12 +217,43 @@
                         return response.text(); //백단에서 return 한 게시글 잘 작성됐다는 메시지 받음
                     }).then(_=> {
                         console.log("Success");
+                        // 사이트에서 빠져나갈 때 동작 이벤트를 제거한다. 이렇게 해서 페이지 빠져나갈때 beforeunload 이벤트의 업로드 취소 로직이
+                        // 실행되지 않도록 한다.
+                        window.removeEventListener('beforeunload', rollbackUploadedImages);
                         window.location.href="/bbs/board";
                         //localhost:8080/bbs/board 로 페이지가 이동
                     }).catch(error=>{
                         console.log("Error가 발생",error);
                     });
                 });
+
+                document.getElementById("buttonCancel").addEventListener("click", function() {
+                    // 취소 버튼을 눌렀을때 동작 - 이때는 업로드 시도한 모든 이미지 파일을 삭제하는 로직으로 작동한다.
+                    // 이미 DB에 기록된 내용은 파일부분만 있기 때문에 그 부분만을 formdata로 해서 전송을 하자.
+
+                    const formData = {
+                        uploadfile: rollbackImageUrls
+                    }
+
+                    fetch("/api/v1/rollback",{
+                        method:"POST",
+                        headers:{
+                            'Content-Type':'application/json',
+                        },
+                        body: JSON.stringify(formData)
+                    }).then(response =>{
+                        if(!response.ok){
+                            throw new Error("게시물 롤백 실패.")
+                        }
+                        return response.text();
+                    }).then(_=> {
+                        console.log("Success");
+                        window.location.href="/bbs/board" // 이전 페이지로 이동
+                    }).catch(error=>{
+                        console.log("Error가 발생",error);
+                    });
+                });
+
                 });
     }
     //백엔드단에서 프론트단 데이터 가져온다
@@ -166,6 +262,36 @@
 
     //메인페이지가 열리면 자동실행됨
     window.addEventListener('load',fetchDetail);
+
+    //기본적으로 사이트에서 빠져나갈때 동작을 추가
+    window.addEventListener('beforeunload', rollbackUploadedImages)
+
+    function rollbackUploadedImages() {
+        // 사이트에서 빠져나갈 때 동작 - 이때도 업로드 시도한 모든 이미지 파일을 삭제하는 로직으로 작동한다.
+        // 이미 DB에 기록된 내용은 파일부분만 있기 때문에 그 부분만을 formdata로 해서 전송을 하자.
+
+        const formData = {
+            uploadfile: rollbackImageUrls
+        }
+
+        fetch("/api/v1/rollback",{
+            method:"POST",
+            headers:{
+                'Content-Type':'application/json',
+            },
+            body: JSON.stringify(formData)
+        }).then(response =>{
+            if(!response.ok){
+                throw new Error("게시물 롤백 실패.")
+            }
+            return response.text();
+        }).then(_=> {
+            console.log("Success");
+            //window.location.href="/bbs/board" // 사이트 납치 태그가 될수 있기에 주석처리
+        }).catch(error=>{
+            console.log("Error가 발생",error);
+        });
+    }
 
 </script>
 

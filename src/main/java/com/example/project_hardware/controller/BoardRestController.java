@@ -175,14 +175,42 @@ public class BoardRestController {
         return ResponseEntity.ok(board); // HTTP 상태메시지가 200대인지 확인하여 그렇다면 데이터를 백에서 프론트로 넘김
     }
 
+//    @PutMapping("/api/v1/modify/{boardNo}")
+//    public ResponseEntity<String> getBoardModify(
+//            @PathVariable("boardNo") int boardNo, //게시물 수정에 따라 주솟값이 바뀜
+//            Authentication authentication, //작성자와 수정자가 같은지 확인
+//            @RequestBody Board board) {
+//
+//        board.setBoardNo(boardNo);
+//        boardService.boardModify(board);
+//
+//        return ResponseEntity.ok("게시물 수정 성공");
+//    }
+
     @PutMapping("/api/v1/modify/{boardNo}")
+    @Transactional //게시글 수정 로직 전체를 하나의 트랜잭션으로 묶음
     public ResponseEntity<String> getBoardModify(
             @PathVariable("boardNo") int boardNo, //게시물 수정에 따라 주솟값이 바뀜
             Authentication authentication, //작성자와 수정자가 같은지 확인
-            @RequestBody Board board) {
+            @RequestBody BoardWithFile boardWithFile) {
 
-        board.setBoardNo(boardNo);
-        boardService.boardModify(board);
+        boardWithFile.setBoardNo(boardNo);
+
+        // 업로드한 파일 목록 꺼내기
+        List<String> uploadfiles = boardWithFile.getUploadfile();
+        // 그중 최종 확인 전에 삭제된 파일 목록 꺼내기
+        List<String> deletedfiles = boardWithFile.getDeletedfile();
+        //List<String> remainedfiles = new ArrayList<>();
+        //업로드한 파일 목록에서 삭제된 파일 목록을 제거하고 남은 파일 목록 만들기
+        uploadfiles.removeAll(deletedfiles);
+        // 남은 파일 목록을 기존의 boardWithFile에 대입
+        boardWithFile.setUploadfile(uploadfiles);
+
+        // 삭제된 파일 제거 - 저장소에서 삭제하고, DB에서도 제거한다.
+        fileService.deleteFile(uploadPathImg, deletedfiles);
+
+        // 게시글 수정하여 DB에 반영
+        boardService.boardModify(boardWithFile);
 
         return ResponseEntity.ok("게시물 수정 성공");
     }
@@ -211,6 +239,8 @@ public class BoardRestController {
         }
 
         //게시물 삭제
+        //삭제 코드에 게시물번호에 맞는 업로드된 파일들도 삭제하는 로직을 추가해야 함
+        
         boardService.boardDelete(boardNo);
         return ResponseEntity.ok("게시물 삭제 완료!");
     }

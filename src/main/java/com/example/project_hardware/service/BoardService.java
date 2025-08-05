@@ -23,7 +23,7 @@ public interface BoardService {
     // 특정 게시물 조회
     public BoardWithWriter viewDetail(int boardNo);
 
-    public void boardModify(Board board);
+    public void boardModify(BoardWithFile board);
 
     public void boardDelete(int boardNo);
 

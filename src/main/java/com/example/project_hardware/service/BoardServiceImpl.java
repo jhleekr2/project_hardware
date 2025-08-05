@@ -94,8 +94,24 @@ public class BoardServiceImpl implements BoardService{
 
     @Override
     // @Transactional // 게시물 수정할떄 트랜젝션 오류 발생해서 이 어노테이션 추가
-    public void boardModify(Board board) {
+    public void boardModify(BoardWithFile boardWithFile) {
+        //새로운 변수 Board 정의
+        Board board = new Board();
+        board.setBoardNo(boardWithFile.getBoardNo());
+        board.setTitle(boardWithFile.getTitle());
+        board.setContent(boardWithFile.getContent());
+
+        //게시글 번호 빼내기
+        int boardNo = board.getBoardNo();
+
+        //게시글 수정
         boardMapper.updateBoardList(board);
+
+        // 업로드한 파일 목록 꺼내기 (이미 삭제된 파일 목록은 제거된 상태임)
+        List<String> uploadfiles = boardWithFile.getUploadfile();
+
+        // 이때 업로드 파일을 넣을 게시글 번호도 같이 넘겨야 한다.
+        fileService.validateimgDB(boardNo, uploadfiles);
     }
 
     @Override

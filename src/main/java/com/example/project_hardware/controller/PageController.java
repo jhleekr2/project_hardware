@@ -75,6 +75,8 @@ public class PageController {
         // 쓰기 페이지로 갈때 로그인된 사용자가 누군지 전송
         user = userService.findWriter(authentication.getName());
         model.addAttribute("user", user);
+
+        // 프론트와 백을 분리할때는 완전히 이 부분의 코드가 없어지고 JWT 토큰을 RESTAPI에서 처리하는 식으로 바뀔 것이다.
         return "write";
     }
 

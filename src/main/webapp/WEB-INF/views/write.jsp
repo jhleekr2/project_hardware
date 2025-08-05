@@ -54,6 +54,8 @@
     let uploadedImageUrls = [];
     // 에디터에서 최종적으로 사용된 이미지 URL 저장 배열
     let usedImageUrls = [];
+    // 이미지 업로드가 이루어졌는지 체크하여 업로드창이 닫힐때 업로드를 취소하는 로직이 실행되지 않도록 하는 체크섬 변수
+    // let issubmit = false;
 
     const editor = new toastui.Editor({
         el: document.querySelector('#content'), // 에디터를 적용할 요소 (컨테이너)
@@ -151,7 +153,11 @@
             return response.text(); //백단에서 return 한 게시글 잘 작성됐다는 메시지 받음
         }).then(_=> {
             console.log("Success");
-            //window.location.href="/"; //개발을 위하여 이 부분을 비활성화
+            // 사이트에서 빠져나갈 때 동작 이벤트를 제거한다. 이렇게 해서 페이지 빠져나갈때 beforeunload 이벤트의 업로드 취소 로직이
+            // 실행되지 않도록 한다.
+            // issubmit = true; 별도의 체크섬 변수를 만드는 것은 fetch의 비동기 로직과 충돌하여 동작하지 않음을 확인.
+            window.removeEventListener('beforeunload', rollbackUploadedImages);
+            window.location.href="/"; //개발을 위하여 이 부분을 비활성화
             //localhost:8080 로 페이지가 이동
         }).catch(error=>{
             console.log("Error가 발생",error);
@@ -161,6 +167,7 @@
     document.getElementById("buttonCancel").addEventListener("click", function() {
         // 취소 버튼을 눌렀을때 동작 - 이때는 업로드 시도한 모든 이미지 파일을 삭제하는 로직으로 작동한다.
         // 이미 DB에 기록된 내용은 파일부분만 있기 때문에 그 부분만을 formdata로 해서 전송을 하자.
+
         const formData = {
             uploadfile: uploadedImageUrls
         }
@@ -184,9 +191,13 @@
         });
     });
 
-    window.addEventListener('beforeunload', function() {
+    window.addEventListener('beforeunload', rollbackUploadedImages);
+    // 기본적으로 사이트에서 빠져나갈때 동작을 추가
+
+    function rollbackUploadedImages() {
         // 사이트에서 빠져나갈 때 동작 - 이때도 업로드 시도한 모든 이미지 파일을 삭제하는 로직으로 작동한다.
         // 이미 DB에 기록된 내용은 파일부분만 있기 때문에 그 부분만을 formdata로 해서 전송을 하자.
+
         const formData = {
             uploadfile: uploadedImageUrls
         }
@@ -208,7 +219,7 @@
         }).catch(error=>{
             console.log("Error가 발생",error);
         });
-    });
+    }
 
 
     async function rollbackUploadedImages() {
