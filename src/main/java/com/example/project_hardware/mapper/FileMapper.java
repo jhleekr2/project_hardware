@@ -3,6 +3,7 @@ package com.example.project_hardware.mapper;
 import com.example.project_hardware.dto.UploadFile;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ public interface FileMapper {
 
     //@Update("UPDATE uploadimg SET board_no = ${boardNo}")
     // 마이바티스의 동적 쿼리를 이용해보자
+    // 업로드한 이미지 파일에 게시물번호를 부여함으로써 활성화
     void activeImg(int boardNo, List<String> uploadfiles);
 
     // 이미지 파일을 삭제 후 DB에서도 삭제
@@ -25,8 +27,18 @@ public interface FileMapper {
     @Insert("INSERT INTO uploadfile(filename_ori, filename_saved) VALUES(#{filenameOri}, #{filenameSav})")
     void insertFile(UploadFile uploadFileInfo);
 
+    // 업로드한 첨부파일에 게시물번호를 부여함으로써 활성화
     void activeFile(int boardNo, List<String> uploadfiles);
 
+    // 첨부파일을 삭제 후 DB에서도 삭제
     void deleteGeneralFile(List<String> uploadfiles);
+
+    // 게시글 번호에 맞는 이미지 파일 DB에서 검색
+    @Select("SELECT filename_saved FROM uploadimg WHERE board_no = #{boardNo}")
+    List<String> selectImgBoardNo(int boardNo);
+
+    // 게시글 번호에 맞는 첨부파일 DB에서 검색
+    @Select("SELECT filename_saved FROM uploadfile WHERE board_no = #{boardNo}")
+    List<String> selectFileBoardNo(int boardNo);
 
 }

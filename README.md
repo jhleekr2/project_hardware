@@ -12,6 +12,7 @@
 개발환경
 * Windows 10, Windows 11
 * Intellij IDEA 2023.1.7
+* Postman
 
 사용기술
 * Java 17
@@ -19,12 +20,11 @@
 * Spring Security
 * MyBatis
 * JSP(대다수 기능은 SSR보다는 Fetch API 이용한 CSR로 구현)
-* Postman
 * Swagger
 * HTML
 * CSS
 * Javascript(Jquery를 의도적으로 사용하지 않음)
-* Toast UI Editor
+* Toast UI Editor(게시물 작성 및 수정할때 사용하는 외부 에디터)
 
 프로젝트 개발일지
 * 2025-07-07
@@ -42,7 +42,8 @@
 * Toast UI Editor 도입 및 에디터를 통한 이미지 업로드 기능 구현
 * 2025-07-26 ~ 31
 * 게시물 조회 페이지네이션 기능 구현중
-* 2025-07-31 ~ 08-03
+* 2025-07-31 ~ 08-07
 * 이미지 업로드 관련 기능들을 완벽하게 구현
+* 이비지 업로드 CRUD 완성, 비슷한 로직으로 파일 업로드 기능도 상당부분 구현
 
 

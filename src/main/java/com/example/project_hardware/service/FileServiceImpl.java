@@ -130,4 +130,14 @@ public class FileServiceImpl implements FileService{
         fileMapper.activeFile(boardNo, uploadfiles);
 
     }
+
+    @Override
+    public List<String> selectUploadImgBoardNo(int boardNo) {
+        return fileMapper.selectImgBoardNo(boardNo);
+    }
+
+    @Override
+    public List<String> selectUploadFileBoardNo(int boardNo) {
+        return fileMapper.selectFileBoardNo(boardNo);
+    }
 }

@@ -24,4 +24,8 @@ public interface FileService {
     public void insertfileDB(UploadFile uploadFileInfo);
 
     public void validatefileDB(int boardNo, List<String> uploadfiles);
+
+    public List<String> selectUploadImgBoardNo(int boardNo);
+
+    public List<String> selectUploadFileBoardNo(int boardNo);
 }

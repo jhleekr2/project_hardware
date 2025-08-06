@@ -1,11 +1,9 @@
 package com.example.project_hardware.service;
 
-import com.example.project_hardware.dto.Board;
-import com.example.project_hardware.dto.BoardWithFile;
-import com.example.project_hardware.dto.BoardWithWriter;
-import com.example.project_hardware.dto.RequestList;
+import com.example.project_hardware.dto.*;
 import com.example.project_hardware.mapper.BoardMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +16,9 @@ import java.util.Map;
 
 @Service
 public class BoardServiceImpl implements BoardService{
+
+    @Value("${board.imgdir}")
+    private String uploadPathImg;
 
     @Autowired
     private BoardMapper boardMapper;
@@ -116,6 +117,17 @@ public class BoardServiceImpl implements BoardService{
 
     @Override
     public void boardDelete(int boardNo) {
+        // 게시물번호에 해당하는 파일도 삭제하는 로직을 추가해야 함
+
+        // 게시글번호에 해당하는 업로드 파일 조회(이미지 파일과 첨부파일을 따로 조회하고 이들을 각각 삭제하는 로직 넣어아햠)
+        List<String> uploadimg = fileService.selectUploadImgBoardNo(boardNo);
+        fileService.deleteFile(FileRole.IMAGE, uploadPathImg, uploadimg);
+
+        // 첨부파일 조회 코드(현재는 아직 개발이 덜되 비활성화)
+        //List<String> uploadfile = fileService.selectUploadFileBoardNo(boardNo);
+        //fileService.deleteFile(FileRole.FILE, uploadPathFile, uploadfile);
+
+        // 게시물 삭제
         boardMapper.boardDelete(boardNo);
     }
 
