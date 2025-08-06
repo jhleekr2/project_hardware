@@ -30,4 +30,32 @@
             WHERE 1 = 2
         </if>
     </delete>
+
+    <update id="activeFile">
+        UPDATE uploadfile SET board_no = ${boardNo}
+        <if test="!uploadfiles.isEmpty()">
+            WHERE filename_saved IN
+            <foreach collection="uploadfiles" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="uploadfiles.isEmpty()">
+            WHERE 1 = 2
+        </if>
+    </update>
+
+    <!-- 삭제할 파일 목록이 없을 때 SQL이 비어있지 않다고 에러가 발생해서 더미 SQL 구문을 추가 삽입 -->
+    <!-- 같은 에러가 업데이트 쿼리에서도 발생 -->
+    <delete id="deleteGeneralFile" parameterType="java.util.List">
+        DELETE FROM uploadfile
+        <if test="!list.isEmpty()">
+            WHERE filename_saved IN
+            <foreach collection="uploadfiles" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="list.isEmpty()">
+            WHERE 1 = 2
+        </if>
+    </delete>
 </mapper>

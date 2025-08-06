@@ -1,5 +1,6 @@
 package com.example.project_hardware.service;
 
+import com.example.project_hardware.dto.FileRole;
 import com.example.project_hardware.dto.UploadFile;
 import com.example.project_hardware.mapper.FileMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,8 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
+import static com.example.project_hardware.dto.FileRole.FILE;
+
 @Service
 public class FileServiceImpl implements FileService{
 
@@ -19,7 +22,7 @@ public class FileServiceImpl implements FileService{
     private FileMapper fileMapper;
 
     @Override
-    public String uploadFile(String path, MultipartFile file) {
+    public String uploadFile(FileRole fileRole, String path, MultipartFile file) {
 
         //저장 폴더 객체 생성
         //final String uploadDir = uploadPathImg;
@@ -62,7 +65,13 @@ public class FileServiceImpl implements FileService{
             uploadFileInfo.setFilenameOri(orgFilename);
             uploadFileInfo.setFilenameSav(saveFilename);
             // DB에 파일 기록하고 DB기록이 실패하면 파일 업로드가 더이상 진행되지 않음
-            this.insertimgDB(uploadFileInfo);
+
+            // 일반 파일 업로드인지, 이미지 파일 업로드인지에 따라 저장하는 DB가 달라지는 로직 추가 예정
+            if(fileRole == FILE) {
+                this.insertfileDB(uploadFileInfo);
+            } else {
+                this.insertimgDB(uploadFileInfo);
+            }
             // 목적지에 파일 저장
             file.transferTo(dest);
             // API로서 저장된 파일이름을 반환하고 클라이언트에서 서버에 저장된 파일명을 그대로 받음
@@ -85,7 +94,7 @@ public class FileServiceImpl implements FileService{
     }
 
     @Override
-    public void deleteFile(String path, List<String> deletedfiles) {
+    public void deleteFile(FileRole fileRole, String path, List<String> deletedfiles) {
         //foreach 문을 통해 삭제할 파일마다 파일 객체 생성한다.
         for(String s : deletedfiles) {
             //전체 파일 경로 생성 - 환경설정에 따른 파일 저장 경로 + 프론트로부터 전달받은 삭제할 파일명
@@ -102,7 +111,23 @@ public class FileServiceImpl implements FileService{
         //따라서 마이바티스의 테스트 조건 비정상 작동을 부름
         //System.out.println("삭제할 파일의 이름은 "+ deletedfiles +"입니다.");
         // DB에서도 파일 정보 삭제
-        fileMapper.deleteImg(deletedfiles);
+        if(fileRole == FILE) {
+            fileMapper.deleteGeneralFile(deletedfiles);
+        } else {
+            fileMapper.deleteImg(deletedfiles);
+        }
+        // 일반 파일 삭제인지, 이미지 파일 삭제인지에 따라 저장하는 DB가 달라지는 로직 추가 예정
+
+    }
+
+    @Override
+    public void insertfileDB(UploadFile uploadFileInfo) {
+        fileMapper.insertFile(uploadFileInfo);
+    }
+
+    @Override
+    public void validatefileDB(int boardNo, List<String> uploadfiles) {
+        fileMapper.activeFile(boardNo, uploadfiles);
 
     }
 }

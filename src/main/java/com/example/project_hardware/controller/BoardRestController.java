@@ -106,7 +106,7 @@ public class BoardRestController {
         // foreach 구문 쓰면 N+1문제 발생하기 떄문에 대신 동적 쿼리를 쓴다.
 
         // 삭제된 파일 제거 - 저장소에서 삭제하고, DB에서도 제거한다.
-        fileService.deleteFile(uploadPathImg, deletedfiles);
+        fileService.deleteFile(FileRole.IMAGE, uploadPathImg, deletedfiles);
 
         // 게시글 작성하여 DB에 반영
         int boardNo = boardService.boardWrite(boardWithFile);
@@ -122,7 +122,7 @@ public class BoardRestController {
         //파일 업로드 모듈 호출(업로드하고자 하는 폴더, 업로드하고자 하는 파일)
         //반환은 저장 파일 이름
         //업로드가 실패하면 대신 RuntimeException 반환된다.
-        String savefilename = fileService.uploadFile(uploadPathImg, image);
+        String savefilename = fileService.uploadFile(FileRole.IMAGE, uploadPathImg, image);
 
         return savefilename;
     }
@@ -136,7 +136,7 @@ public class BoardRestController {
         List<String> uploadfiles = boardWithFile.getUploadfile();
 
         // 업로드한 파일 전부 제거 - 저장소에서 삭제하고, DB에서도 제거한다.
-        fileService.deleteFile(uploadPathImg, uploadfiles);
+        fileService.deleteFile(FileRole.IMAGE, uploadPathImg, uploadfiles);
 
         return ResponseEntity.ok("게시물 작성 취소 성공");
     }
@@ -207,7 +207,7 @@ public class BoardRestController {
         boardWithFile.setUploadfile(uploadfiles);
 
         // 삭제된 파일 제거 - 저장소에서 삭제하고, DB에서도 제거한다.
-        fileService.deleteFile(uploadPathImg, deletedfiles);
+        fileService.deleteFile(FileRole.IMAGE, uploadPathImg, deletedfiles);
 
         // 게시글 수정하여 DB에 반영
         boardService.boardModify(boardWithFile);
