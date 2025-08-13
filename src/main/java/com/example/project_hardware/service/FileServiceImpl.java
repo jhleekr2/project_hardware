@@ -95,17 +95,20 @@ public class FileServiceImpl implements FileService{
 
     @Override
     public void deleteFile(FileRole fileRole, String path, List<String> deletedfiles) {
-        //foreach 문을 통해 삭제할 파일마다 파일 객체 생성한다.
-        for(String s : deletedfiles) {
-            //전체 파일 경로 생성 - 환경설정에 따른 파일 저장 경로 + 프론트로부터 전달받은 삭제할 파일명
-            String dest = path + s;
-            File file = new File(dest);;
-            //System.out.println(dest);
-            dest = path;
-            // 저장공간에 있는 파일 삭제
-            file.delete();
-        }
-
+        //deletedfiles가 null이 들어올때 많은 예외를 일으키므로 예외를 일으키지 않도록 회피
+        //모든 로직들을 null이 아닐때만 실행되도록 조건문으로 감싸주었다.
+        if(deletedfiles != null) {
+            //foreach 문을 통해 삭제할 파일마다 파일 객체 생성한다.
+            for (String s : deletedfiles) {
+                //전체 파일 경로 생성 - 환경설정에 따른 파일 저장 경로 + 프론트로부터 전달받은 삭제할 파일명
+                String dest = path + s;
+                File file = new File(dest);
+                ;
+                //System.out.println(dest);
+                dest = path;
+                // 저장공간에 있는 파일 삭제
+                file.delete();
+            }
         //마이바티스가 파일이 없을때 자꾸 에러를 띄워서 확인해본 결과 파일이 없을때 List<String> deletedfiles는
         //null(기댓값)이 아닌 [](실측값)이 리턴됨.
         //따라서 마이바티스의 테스트 조건 비정상 작동을 부름
@@ -117,6 +120,7 @@ public class FileServiceImpl implements FileService{
             fileMapper.deleteImg(deletedfiles);
         }
         // 일반 파일 삭제인지, 이미지 파일 삭제인지에 따라 저장하는 DB가 달라지는 로직 추가 예정
+        }
 
     }
 

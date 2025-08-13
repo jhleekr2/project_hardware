@@ -12,11 +12,13 @@ public class BoardWithFile {
     private int hit;
     private List<String> uploadfile;
     private List<String> deletedfile;
+    private List<String> uploadgeneralfile;
+    private List<String> deletedgeneralfile;
 
     public BoardWithFile() {
     }
 
-    public BoardWithFile(int boardNo, int userNum, Date writeDate, String title, String content, int hit, List<String> uploadfile, List<String> deletedfile) {
+    public BoardWithFile(int boardNo, int userNum, Date writeDate, String title, String content, int hit, List<String> uploadfile, List<String> deletedfile, List<String> uploadgeneralfile, List<String> deletedgeneralfile) {
         this.boardNo = boardNo;
         this.userNum = userNum;
         this.writeDate = writeDate;
@@ -25,6 +27,8 @@ public class BoardWithFile {
         this.hit = hit;
         this.uploadfile = uploadfile;
         this.deletedfile = deletedfile;
+        this.uploadgeneralfile = uploadgeneralfile;
+        this.deletedgeneralfile = deletedgeneralfile;
     }
 
     public int getBoardNo() {
@@ -91,6 +95,22 @@ public class BoardWithFile {
         this.deletedfile = deletedfile;
     }
 
+    public List<String> getUploadgeneralfile() {
+        return uploadgeneralfile;
+    }
+
+    public void setUploadgeneralfile(List<String> uploadgeneralfile) {
+        this.uploadgeneralfile = uploadgeneralfile;
+    }
+
+    public List<String> getDeletedgeneralfile() {
+        return deletedgeneralfile;
+    }
+
+    public void setDeletedgeneralfile(List<String> deletedgeneralfile) {
+        this.deletedgeneralfile = deletedgeneralfile;
+    }
+
     @Override
     public String toString() {
         return "BoardWithFile{" +
@@ -102,6 +122,8 @@ public class BoardWithFile {
                 ", hit=" + hit +
                 ", uploadfile=" + uploadfile +
                 ", deletedfile=" + deletedfile +
+                ", uploadgeneralfile=" + uploadgeneralfile +
+                ", deletedgeneralfile=" + deletedgeneralfile +
                 '}';
     }
 }

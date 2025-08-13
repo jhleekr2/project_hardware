@@ -5,9 +5,9 @@ CREATE TABLE `nestedcomment_recommend` (
 );
 
 CREATE TABLE `uploadfile` (
-	`board_no`	int	NOT NULL,
-	`filename_ori`	varchar(50) not null,
-	`filename_saved` varchar(50) not null
+	`board_no`	int,
+	`filename_ori`	varchar(50),
+	`filename_saved` varchar(50)
 );
 
 CREATE TABLE `board` (

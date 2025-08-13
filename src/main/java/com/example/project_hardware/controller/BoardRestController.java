@@ -35,6 +35,9 @@ public class BoardRestController {
     @Value("${board.imgdir}")
     private String uploadPathImg;
 
+    @Value("${board.uploaddir}")
+    private String uploadPathFile;
+
     @Autowired
     BoardService boardService;
 
@@ -78,7 +81,7 @@ public class BoardRestController {
 
     @PostMapping("/api/v1/write")
     @Transactional //게시글 쓰기 로직 전체를 하나의 트랜잭션으로 묶음
-    public ResponseEntity<String> boardWrite(Authentication authentication, @RequestBody BoardWithFile boardWithFile) {
+    public ResponseEntity<String> boardWritewithoutfile(Authentication authentication, @RequestBody BoardWithFile boardWithFile) {
         // @RequestBody Board board를 통해 프론트의 입력 Form에서 값이 전달되어 입력
         // 스프링 프레임워크에 의해 전달되는 것
         // 현재 로그인된 사용자 정보를 본래 세션의 HttpSession을 통해 전달하려 하였으나 대신 스프링 시큐리티를 활용해보자
@@ -89,15 +92,14 @@ public class BoardRestController {
 
         // 게시물 업로드 전에 최종 확인 전 삭제된 파일 처리부터 우선시한다.
 
-        // 업로드한 파일 목록 꺼내기
-        List<String> uploadfiles = boardWithFile.getUploadfile();
-        // 그중 최종 확인 전에 삭제된 파일 목록 꺼내기
-        List<String> deletedfiles = boardWithFile.getDeletedfile();
-        //List<String> remainedfiles = new ArrayList<>();
-        //업로드한 파일 목록에서 삭제된 파일 목록을 제거하고 남은 파일 목록 만들기
-        uploadfiles.removeAll(deletedfiles);
-        // 남은 파일 목록을 기존의 boardWithFile에 대입
-        boardWithFile.setUploadfile(uploadfiles);
+        // 업로드한 이미지파일 목록 꺼내기
+        List<String> uploadimgfiles = boardWithFile.getUploadfile();
+        // 그중 최종 확인 전에 삭제된 이미지파일 목록 꺼내기
+        List<String> deletedimgfiles = boardWithFile.getDeletedfile();
+        // 업로드한 이미지파일 목록에서 삭제된 이미지파일 목록을 제거하고 남은 파일 목록 만들기
+        uploadimgfiles.removeAll(deletedimgfiles);
+        // 남은 이미지파일 목록을 기존의 boardWithFile에 대입
+        boardWithFile.setUploadfile(uploadimgfiles);
 
         // foreach 구문을 통해서 업로드한 파일들을 DB에서 유효화
         // for(String u : uploadfiles)
@@ -105,14 +107,72 @@ public class BoardRestController {
         // for(꺼내는 자료형(String, int 등) 매개변수명 : 컬렉션명)
         // foreach 구문 쓰면 N+1문제 발생하기 떄문에 대신 동적 쿼리를 쓴다.
 
+        // 삭제된 이미지파일 제거 - 저장소에서 삭제하고, DB에서도 제거한다.
+        fileService.deleteFile(FileRole.IMAGE, uploadPathImg, deletedimgfiles);
+
+        // 위의 논리를 이미지파일이 아닌 일반 파일에도 그대로 적용한다.
+
+        // 업로드한 파일 목록 꺼내기
+        List<String> uploadgeneralfiles = boardWithFile.getUploadgeneralfile();
+        // 그중 최종 확인 전에 삭제된 파일 목록 꺼내기
+        List<String> deletedgeneralfiles = boardWithFile.getDeletedgeneralfile();
+        // 업로드한 파일 목록에서 삭제된 파일 목록을 제거하고 남은 파일 목록 만들기
+        if(deletedgeneralfiles != null) {
+            uploadgeneralfiles.removeAll(deletedgeneralfiles);
+        }
+        // 남은 파일 목록을 기존의 boardWithFile에 대입
+        // 디버깅 결과 이 부분에서 로직이 꼬였음. 여기서 setter 함수 이름을 변경해야 함
+        boardWithFile.setUploadgeneralfile(uploadgeneralfiles);
+
         // 삭제된 파일 제거 - 저장소에서 삭제하고, DB에서도 제거한다.
-        fileService.deleteFile(FileRole.IMAGE, uploadPathImg, deletedfiles);
+        fileService.deleteFile(FileRole.FILE, uploadPathFile, deletedgeneralfiles);
 
         // 게시글 작성하여 DB에 반영
         int boardNo = boardService.boardWrite(boardWithFile);
 
         return ResponseEntity.ok("게시물 작성 성공");
     }
+
+//    @PostMapping("/api/v1/write")
+//    @Transactional //게시글 쓰기 로직 전체를 하나의 트랜잭션으로 묶음
+//    public ResponseEntity<String> boardWrite(
+//            Authentication authentication,
+//            @RequestBody BoardWithFile boardWithFile,
+//            @RequestPart(value = "file", required = false) List<MultipartFile> files) {
+//        // @RequestBody Board board를 통해 프론트의 입력 Form에서 값이 전달되어 입력
+//        // 스프링 프레임워크에 의해 전달되는 것
+//        // 현재 로그인된 사용자 정보를 본래 세션의 HttpSession을 통해 전달하려 하였으나 대신 스프링 시큐리티를 활용해보자
+//        // 알고보니 프론트단에서 로그인된 사용자 정보가 미리 입력되어 넘어오므로 필요없다.
+//        // 일단 혹시나 대비해서 Authentication을 남겨둔다
+//
+//        // https://congsong.tistory.com/68 참고하여 스프링 부트 파일 업로드 구현해본다
+//
+//        // 게시물 업로드 전에 최종 확인 전 삭제된 파일 처리부터 우선시한다.
+//
+//        // 업로드한 파일 목록 꺼내기
+//        List<String> uploadfiles = boardWithFile.getUploadfile();
+//        // 그중 최종 확인 전에 삭제된 파일 목록 꺼내기
+//        List<String> deletedfiles = boardWithFile.getDeletedfile();
+//        //List<String> remainedfiles = new ArrayList<>();
+//        //업로드한 파일 목록에서 삭제된 파일 목록을 제거하고 남은 파일 목록 만들기
+//        uploadfiles.removeAll(deletedfiles);
+//        // 남은 파일 목록을 기존의 boardWithFile에 대입
+//        boardWithFile.setUploadfile(uploadfiles);
+//
+//        // foreach 구문을 통해서 업로드한 파일들을 DB에서 유효화
+//        // for(String u : uploadfiles)
+//        // foreach 문 복습
+//        // for(꺼내는 자료형(String, int 등) 매개변수명 : 컬렉션명)
+//        // foreach 구문 쓰면 N+1문제 발생하기 떄문에 대신 동적 쿼리를 쓴다.
+//
+//        // 삭제된 파일 제거 - 저장소에서 삭제하고, DB에서도 제거한다.
+//        fileService.deleteFile(FileRole.IMAGE, uploadPathImg, deletedfiles);
+//
+//        // 게시글 작성하여 DB에 반영
+//        int boardNo = boardService.boardWrite(boardWithFile);
+//
+//        return ResponseEntity.ok("게시물 작성 성공");
+//    }
 
     @PostMapping("/api/v1/uploadimg")
     public String uploadImg(@RequestParam("image") MultipartFile image) {
@@ -127,16 +187,37 @@ public class BoardRestController {
         return savefilename;
     }
 
+    @PostMapping("/api/v1/uploadfile")
+    public String uploadFile(@RequestParam("file") MultipartFile file) {
+        //첨부파일 업로드 API
+
+        //파일 업로드 모듈 호출(업로드하고자 파는 폴더, 업로드하고자 하는 파일)
+        //반환은 저장 파일 이름
+        //업로드가 실패하면 대신 RuntimeException 반환된다.
+        String savefilename = fileService.uploadFile(FileRole.FILE, uploadPathFile, file);
+
+        return savefilename;
+    }
+
     @PostMapping("/api/v1/rollback")
     public ResponseEntity<String> rollbackImgUpload(@RequestBody BoardWithFile boardWithFile) {
         // 이 메서드는 게시물 작성을 취소할때 미리 업로드되었던 이미지 파일의 업로드 정보를 삭제하는 로직을 작성한다.
         // 기본적으로 게시물 작성 로직에서 에디터에서 삭제한 파일을 처리하는 코드를 그대로 사용하기만 하면 된다.
 
         // 업로드한 파일 목록 꺼내기
-        List<String> uploadfiles = boardWithFile.getUploadfile();
+        List<String> uploadimgfiles = boardWithFile.getUploadfile();
+        // 업로드한 파일 목록 꺼내기
+        List<String> uploadgeneralfiles = boardWithFile.getUploadgeneralfile();
 
         // 업로드한 파일 전부 제거 - 저장소에서 삭제하고, DB에서도 제거한다.
-        fileService.deleteFile(FileRole.IMAGE, uploadPathImg, uploadfiles);
+        // NullPointerException 때문에 예외 처리를 해야만 함이 증명되었다.
+        if(uploadimgfiles != null) {
+            fileService.deleteFile(FileRole.IMAGE, uploadPathImg, uploadimgfiles);
+        }
+
+        if(uploadgeneralfiles != null) {
+            fileService.deleteFile(FileRole.FILE, uploadPathFile, uploadgeneralfiles);
+        }
 
         return ResponseEntity.ok("게시물 작성 취소 성공");
     }

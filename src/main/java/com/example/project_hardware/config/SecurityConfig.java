@@ -44,7 +44,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/board", "/api/v1/boardView/**", "/api/v1/delete/**", "/api/v1e/board", "/ap1/v1/rollback").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/v1/count/**").permitAll()
                         .requestMatchers("/bbs/insert", "/bbs/update/**").hasAnyAuthority("ADMIN", "MANAGER", "MEMBER")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/write", "/api/v1/uploadimg").hasAnyAuthority("ADMIN", "MANAGER", "MEMBER")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/write", "/api/v1/uploadimg", "/api/v1/uploadfile").hasAnyAuthority("ADMIN", "MANAGER", "MEMBER")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/modify/**").hasAnyAuthority("ADMIN", "MANAGER", "MEMBER")
                         //.requestMatchers(HttpMethod.DELETE, ).hasAnyAuthority("ADMIN", "MANAGER", "MEMBER")
                         .anyRequest().authenticated() //로그인을 해야지만 접근이 가능하게끔 만듬. 그렇기 때문에 로그인 페이지로 자동 이동

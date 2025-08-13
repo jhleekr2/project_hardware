@@ -20,6 +20,9 @@ public class BoardServiceImpl implements BoardService{
     @Value("${board.imgdir}")
     private String uploadPathImg;
 
+    @Value("${board.uploaddir}")
+    private String uploadPathFile;
+
     @Autowired
     private BoardMapper boardMapper;
 
@@ -60,8 +63,8 @@ public class BoardServiceImpl implements BoardService{
         // 아마 이 부분은 쿼리를 만져서 극복해야 할 것이다.
         // N+1문제 해결을 위해 마이바티스의 동적 쿼리를 쓰게 될 것이다.
 
-        // 업로드한 파일 목록 꺼내기 (이미 삭제된 파일 목록은 제거된 상태임)
-        List<String> uploadfiles = boardWithFile.getUploadfile();
+        // 업로드한 이미지파일 목록 꺼내기 (이미 삭제된 파일 목록은 제거된 상태임)
+        List<String> uploadimgfiles = boardWithFile.getUploadfile();
         // 그중 최종 확인 전에 삭제된 파일 목록 꺼내기
         //List<String> deletedfiles = boardWithFile.getDeletedfile();
         //List<String> remainedfiles = new ArrayList<>();
@@ -77,9 +80,18 @@ public class BoardServiceImpl implements BoardService{
         // 삭제된 파일 목록 제거
         //fileService.deleteFile(deletedfiles);
 
-        // 이때 업로드 파일을 넣을 게시글 번호도 같이 넘겨야 한다.
-        fileService.validateimgDB(boardNo, uploadfiles);
+        // 이때 업로드 이미지파일을 넣을 게시글 번호도 같이 넘겨야 한다.
+        // DB에서 업로드 이미지파일을 활성화
+        fileService.validateimgDB(boardNo, uploadimgfiles);
         // 여기까지 해결되면 파일 업로드 구현은 DB저장까지 완벽하게 완료!
+
+        // 마찬가지 논리를 일반 파일에도 적용
+        // 업로드한 일반파일 목록 꺼내기 (이미 삭제된 파일 목록은 제거된 상태임)
+        List<String> uploadgeneralfiles = boardWithFile.getUploadgeneralfile();
+
+        // 이때 업로드 일반파일을 넣을 게시글 번호도 같이 넘겨야 한다.
+        // DB에서 업로드 일반파일을 활성화
+        fileService.validatefileDB(boardNo, uploadgeneralfiles);
 
         return boardNo;
     }
@@ -124,8 +136,8 @@ public class BoardServiceImpl implements BoardService{
         fileService.deleteFile(FileRole.IMAGE, uploadPathImg, uploadimg);
 
         // 첨부파일 조회 코드(현재는 아직 개발이 덜되 비활성화)
-        //List<String> uploadfile = fileService.selectUploadFileBoardNo(boardNo);
-        //fileService.deleteFile(FileRole.FILE, uploadPathFile, uploadfile);
+        List<String> uploadfile = fileService.selectUploadFileBoardNo(boardNo);
+        fileService.deleteFile(FileRole.FILE, uploadPathFile, uploadfile);
 
         // 게시물 삭제
         boardMapper.boardDelete(boardNo);

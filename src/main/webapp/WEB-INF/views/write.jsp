@@ -16,7 +16,7 @@
 <%@ include file="/WEB-INF/views/common/header.jsp" %>
 
 글쓴이 : ${writer}
-<form id="menuForm">
+<form id="menuForm" enctype="multipart/form-data">
     <div id="container">
         <div id="menuAdmin">
             <h2 id="menuAdminH2">게시물 작성</h2>
@@ -40,6 +40,17 @@
 
             <input type="hidden" id="writeDate" name="writeDate">
             <input type="hidden" id="hit" name="hit">
+
+            <label for="fileInput">첨부 파일</label>
+            <input type="file" id="fileInput" name="fileInput" multiple>
+            <br>
+            <ul id="fileList"></ul> <br>
+
+<%--            <div class="mb-3">--%>
+<%--                <label for="file">첨부파일</label>--%>
+<%--                <input type="file" id="generalfile" name="file" class="form-control">--%>
+<%--            </div>--%>
+
             <button type="button" id="buttonSubmit">확인</button> <p> <button type="button" id="buttonCancel">취소</button>
         </div>
     </div>
@@ -56,6 +67,10 @@
     let usedImageUrls = [];
     // 이미지 업로드가 이루어졌는지 체크하여 업로드창이 닫힐때 업로드를 취소하는 로직이 실행되지 않도록 하는 체크섬 변수
     // let issubmit = false;
+    // 업로드된 일반 파일의 고유 ID(파일명) 저장 배열
+    let uploadedFileIds = [];
+    // 최종적으로 사용된 일반 파일의 고유 ID(파일명) 저장 배열
+    let usedFileIds = [];
 
     const editor = new toastui.Editor({
         el: document.querySelector('#content'), // 에디터를 적용할 요소 (컨테이너)
@@ -100,7 +115,54 @@
         /* end of hooks */
     });
 
+    // AI에 의한 일반 파일 업로드 프론트 코드
+
+    // 파일 업로드 로직
+    document.getElementById('fileInput').addEventListener('change', async (e) => {
+        const files = e.target.files;
+        const fileListElement = document.getElementById('fileList');
+
+        for (const file of files) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/api/v1/uploadfile', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error('파일 업로드 실패');
+                }
+
+                const filename = await response.text();
+
+                // 성공적으로 업로드된 파일명 저장
+                uploadedFileIds.push(filename);
+
+                // 사용자에게 파일이 업로드되었음을 알림
+                const listItem = document.createElement('li');
+                listItem.textContent = `[업로드됨] ${file.name}`;
+                fileListElement.appendChild(listItem);
+
+            } catch (error) {
+                console.error('파일 업로드 실패:', error);
+                const listItem = document.createElement('li');
+                listItem.textContent = `[실패] ${file.name}`;
+                //fileListElement.appendChild(listItem);
+                //파일 업로드 실패했을때는 appendChild가 작동하지 않도록 함
+            }
+        }
+    });
+
+
     document.getElementById("buttonSubmit").addEventListener("click", function() {
+        if(!document.getElementById("title").value) {
+            alert("제목은 반드시 입력해야 합니다.");
+            return;
+        }
+
         const editorContent = editor.getHTML(); // HTML 형식으로 가져옴
 
         // 여기서 HTML코드를 파싱하여 최종적으로 업로드되는 이미지 파일만 찾는다.
@@ -132,14 +194,42 @@
             //업로드한 파일 이름을 다시 전송
             //이때 불필요한 이미지파일(초기 업로드했으나, 편집에서 나중에 지운 이미지파일)을 지우는 로직을 추가하기 위해
             uploadfile:uploadedImageUrls,
-            deletedfile:deletedImageUrls
+            deletedfile:deletedImageUrls,
+            uploadgeneralfile:uploadedFileIds,
+            deletedgeneralfile:null // 이부분은 향후 추가 개발로 기능을 업그레이드 할 필요가 있음
         }
+
+        // const formData = new FormData();
+        // formData.append("userNum", document.getElementById("userNum").value);
+        // formData.append("id", document.getElementById("id").value);
+        // formData.append("title", document.getElementById("title").value);
+        // formData.append("content", editor.getHTML()); // TUI 에디터 내용
+        // formData.append("nick", document.getElementById("nick").value);
+        // uploadedImageUrls.forEach(filename => {
+        //     formData.append("uploadfile", filename); // 서버에서 List로 받을 수 있도록 필드명 통일
+        // });
+        // deletedImageUrls.forEach(filename => {
+        //     formData.append("deletedfile", filename);
+        // });
+        // 여기서부턴 실험용 코드
+        //formData.append("uploadfile", uploadedImageUrls);
+        //formData.append("deletedfile", deletedImageUrls);
+
+        // // 일반 첨부파일 추가 로직
+        // const generalfile = document.getElementById("generalfile");
+        // if (generalfile.files.length > 0) {
+        //     formData.append("file", generalfile.files[0]);
+        // }
+
         //indate:new Date().toISOString().split("T")[0], 의 의미를 알 필요가 있다.
         //index.jsp파일에서 만들 메타 CSRF 태그 두개를 js파일로 가져온다.
         //const csrfToken = document.querySelector("meta[name='_csrf']").getAttribute("content");
         //const csrfHeader = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
         //개발 과정에서 csrf 토큰 비활성화
 
+        //multipart/form-data방식일 때는
+        //headers 부분을 삭제하고
+        //body 부분은 formData 객체를 직접 body 에 넣음.
         fetch("/api/v1/write",{
             method:"POST",
             headers:{
@@ -169,7 +259,8 @@
         // 이미 DB에 기록된 내용은 파일부분만 있기 때문에 그 부분만을 formdata로 해서 전송을 하자.
 
         const formData = {
-            uploadfile: uploadedImageUrls
+            uploadfile: uploadedImageUrls,
+            uploadgeneralfile:uploadedFileIds
         }
 
         fetch("/api/v1/rollback",{
@@ -199,8 +290,11 @@
         // 이미 DB에 기록된 내용은 파일부분만 있기 때문에 그 부분만을 formdata로 해서 전송을 하자.
 
         const formData = {
-            uploadfile: uploadedImageUrls
+            uploadfile: uploadedImageUrls,
+            uploadgeneralfile:uploadedFileIds
         }
+
+        navigator.sendBeacon('/api/v1/rollback', formData);
 
         fetch("/api/v1/rollback",{
             method:"POST",
@@ -220,36 +314,6 @@
             console.log("Error가 발생",error);
         });
     }
-
-
-    async function rollbackUploadedImages() {
-        if (uploadedImageUrls.length === 0) {
-            console.log("롤백할 이미지가 없습니다.");
-            return;
-        }
-
-        try {
-            const response = await fetch('/api/v1/rollback_images', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ filenames: uploadedImageUrls }),
-                // keepalive 옵션 추가: 페이지가 언로드될 때 요청이 취소되지 않고 계속 진행되도록 시도
-                keepalive: true
-            });
-
-            if (!response.ok) {
-                console.error("이미지 롤백 실패 (keepalive 요청).");
-            } else {
-                console.log("업로드된 이미지가 성공적으로 롤백되었습니다 (keepalive 요청).");
-                uploadedImageUrls = [];
-            }
-        } catch (error) {
-            console.error("이미지 롤백 중 오류 발생 (keepalive 요청) : ", error);
-        }
-    }
-
 
 </script>
 
