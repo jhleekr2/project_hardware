@@ -70,7 +70,9 @@
     // 업로드된 일반 파일의 고유 ID(파일명) 저장 배열
     let uploadedFileIds = [];
     // 최종적으로 사용된 일반 파일의 고유 ID(파일명) 저장 배열
-    let usedFileIds = [];
+    // let usedFileIds = [];
+    // 업로드 후 삭제된 일반 파일의 고유 ID(파일명) 저장 배열
+    let deletedFileIds = [];
 
     const editor = new toastui.Editor({
         el: document.querySelector('#content'), // 에디터를 적용할 요소 (컨테이너)
@@ -115,9 +117,7 @@
         /* end of hooks */
     });
 
-    // AI에 의한 일반 파일 업로드 프론트 코드
-
-    // 파일 업로드 로직
+    // 파일 업로드 프론트 코드
     document.getElementById('fileInput').addEventListener('change', async (e) => {
         const files = e.target.files;
         const fileListElement = document.getElementById('fileList');
@@ -143,19 +143,47 @@
 
                 // 사용자에게 파일이 업로드되었음을 알림
                 const listItem = document.createElement('li');
-                listItem.textContent = `[업로드됨] ${file.name}`;
+                <%--listItem.textContent = `[업로드됨] ${file.name}`;--%>
+                listItem.textContent = file.name;
+                fileListElement.appendChild(listItem);
+
+                // 취소 버튼 역할을 할 링크를 생성
+                const cancelButton = document.createElement('a');
+                cancelButton.href = '#'; // 클릭 가능한 링크로 만들기 위해 '#'를 사용합니다.
+                cancelButton.textContent = '(업로드 취소)';
+                cancelButton.style.marginLeft = '10px';
+                cancelButton.onclick = async (event) => {
+                    event.preventDefault(); // 기본 링크 동작을 막음
+
+                    // deletedFileIds 변수에 업로드한 파일 이름을 추가하고
+                    deletedFileIds.push(filename);
+                    // 프론트에서 추가한 업로드 파일 이름 목록에서도 삭제
+                    // document.removeChild('li')
+                    // 최종적으로 DOM에서도 리스트 아이템을 제거
+                    listItem.remove();
+
+                    // const index = uploadedFileIds.indexOf(filename);
+                    // if (index > -1) {
+                    //     uploadedFileIds.splice(index, 1);
+                    // }
+
+                }
+
+                // 리스트 아이템에 취소 버튼을 추가합니다.
+                listItem.appendChild(cancelButton);
+
+                // 파일 리스트에 리스트 아이템을 추가합니다.
                 fileListElement.appendChild(listItem);
 
             } catch (error) {
                 console.error('파일 업로드 실패:', error);
                 const listItem = document.createElement('li');
                 listItem.textContent = `[실패] ${file.name}`;
-                //fileListElement.appendChild(listItem);
+                // fileListElement.appendChild(listItem);
                 //파일 업로드 실패했을때는 appendChild가 작동하지 않도록 함
             }
         }
     });
-
 
     document.getElementById("buttonSubmit").addEventListener("click", function() {
         if(!document.getElementById("title").value) {
@@ -196,7 +224,7 @@
             uploadfile:uploadedImageUrls,
             deletedfile:deletedImageUrls,
             uploadgeneralfile:uploadedFileIds,
-            deletedgeneralfile:null // 이부분은 향후 추가 개발로 기능을 업그레이드 할 필요가 있음
+            deletedgeneralfile:deletedFileIds // 이부분은 향후 추가 개발로 기능을 업그레이드 할 필요가 있음
         }
 
         // const formData = new FormData();
