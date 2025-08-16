@@ -204,6 +204,9 @@ public class BoardRestController {
         // 이 메서드는 게시물 작성을 취소할때 미리 업로드되었던 이미지 파일의 업로드 정보를 삭제하는 로직을 작성한다.
         // 기본적으로 게시물 작성 로직에서 에디터에서 삭제한 파일을 처리하는 코드를 그대로 사용하기만 하면 된다.
 
+        // 롤백 코드는 로그아웃 상태에서도 접근할 수 있도록 스프링 시큐리티 설정에서 개방(로그인이 풀려서 게시물 작성이 안될때
+        // 파일을 깨끗이 청소할 수 있도록 하기위함)
+
         // 업로드한 파일 목록 꺼내기
         List<String> uploadimgfiles = boardWithFile.getUploadfile();
         // 업로드한 파일 목록 꺼내기
@@ -235,7 +238,6 @@ public class BoardRestController {
         //이때 작성글 사용자 정보와 합치기 위해 별도의 DTO를 사용하고 조인을 한다
 
         // 누가 로그인했는지, 로그인이 되어있는지 여부에 따라 게시물 수정으로 접근할 수 있도록 한다
-        System.out.println(boardNo);
         // 스프링 시큐리티의 Authentication을 통해 현재 로그인된 사용자 확인
         // 일치할때만 프론트에서 게시물 수정 버튼을 띄움
 
@@ -253,8 +255,18 @@ public class BoardRestController {
         board.setBoardNo(boardNo);
         //게시물 정보 조회하여 대입
         board = boardService.viewDetail(boardNo);
+
         return ResponseEntity.ok(board); // HTTP 상태메시지가 200대인지 확인하여 그렇다면 데이터를 백에서 프론트로 넘김
     }
+
+    @GetMapping("/api/v1/boardFileView/{boardNo}")
+    public List<UploadFile> getBoardFileView(@PathVariable("boardNo") int boardNo) {
+        // 게시물 첨부파일 조회
+        List<UploadFile> uploadfile = fileService.selectUploadFileBoardNo(boardNo);
+
+        return uploadfile;
+    }
+
 
 //    @PutMapping("/api/v1/modify/{boardNo}")
 //    public ResponseEntity<String> getBoardModify(

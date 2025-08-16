@@ -3,15 +3,15 @@ package com.example.project_hardware.dto;
 public class UploadFile {
     private int boardNo;
     private String filenameOri;
-    private String filenameSav;
+    private String filenameSaved;
 
     public UploadFile() {
     }
 
-    public UploadFile(int boardNo, String filenameOri, String filenameSav) {
+    public UploadFile(int boardNo, String filenameOri, String filenameSaved) {
         this.boardNo = boardNo;
         this.filenameOri = filenameOri;
-        this.filenameSav = filenameSav;
+        this.filenameSaved = filenameSaved;
     }
 
     public int getBoardNo() {
@@ -30,12 +30,12 @@ public class UploadFile {
         this.filenameOri = filenameOri;
     }
 
-    public String getFilenameSav() {
-        return filenameSav;
+    public String getFilenameSaved() {
+        return filenameSaved;
     }
 
-    public void setFilenameSav(String filenameSav) {
-        this.filenameSav = filenameSav;
+    public void setFilenameSaved(String filenameSaved) {
+        this.filenameSaved = filenameSaved;
     }
 
     @Override
@@ -43,7 +43,7 @@ public class UploadFile {
         return "UploadFile{" +
                 "boardNo=" + boardNo +
                 ", filenameOri='" + filenameOri + '\'' +
-                ", filenameSav='" + filenameSav + '\'' +
+                ", filenameSaved='" + filenameSaved + '\'' +
                 '}';
     }
 }

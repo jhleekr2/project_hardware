@@ -5,6 +5,7 @@ import com.example.project_hardware.dto.UploadFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 // 파일 관련 DB수정 관련 서비스
 public interface FileService {
@@ -21,11 +22,17 @@ public interface FileService {
     // 파일 삭제 서비스 모듈(코드 재사용성을 위해 공통된 모듈로 구성)
     public void deleteFile(FileRole fileRole, String path, List<String> deletedfiles);
 
+    // 업로드한 일반 파일을 DB에 삽입
     public void insertfileDB(UploadFile uploadFileInfo);
 
+    // DB에 삽입한 일반 파일을 유효화
     public void validatefileDB(int boardNo, List<String> uploadfiles);
 
+    // 게시물 번호에 해당하는 이미지 파일 목록을 불러옴
     public List<String> selectUploadImgBoardNo(int boardNo);
 
-    public List<String> selectUploadFileBoardNo(int boardNo);
+    // 게시물 번호에 해당하는 일반 파일 목록을 불러옴
+    public List<UploadFile> selectUploadFileBoardNo(int boardNo);
+
+
 }

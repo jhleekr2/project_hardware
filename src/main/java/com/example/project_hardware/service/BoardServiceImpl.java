@@ -135,8 +135,13 @@ public class BoardServiceImpl implements BoardService{
         List<String> uploadimg = fileService.selectUploadImgBoardNo(boardNo);
         fileService.deleteFile(FileRole.IMAGE, uploadPathImg, uploadimg);
 
-        // 첨부파일 조회 코드(현재는 아직 개발이 덜되 비활성화)
-        List<String> uploadfile = fileService.selectUploadFileBoardNo(boardNo);
+        // 첨부파일 조회 코드
+        List<UploadFile> uploadfilelist = fileService.selectUploadFileBoardNo(boardNo);
+        List<String> uploadfile = new ArrayList<>();
+        for(UploadFile u : uploadfilelist) {
+            uploadfile.add(u.getFilenameSaved());
+        }
+
         fileService.deleteFile(FileRole.FILE, uploadPathFile, uploadfile);
 
         // 게시물 삭제

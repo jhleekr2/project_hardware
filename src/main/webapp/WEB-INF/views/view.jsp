@@ -20,7 +20,9 @@
 
     </div>
 </form>
+<div id="downloadfile">
 
+</div>
 <div id="boardEdit">
 <button id="modify">게시물 수정</button>
 <button id="delete">삭제</button>
@@ -33,6 +35,7 @@
     //즉 객체들을 자바스크립트와 연결시키는 과정
     const container = document.getElementById("container");
     const boardItem = document.getElementById("boardItem");
+    const downloadfile = document.getElementById("downloadfile");
     const boardNo = window.location.pathname.split('/').pop();
 
     function fetchDetail() {
@@ -78,6 +81,33 @@
                 // 생성된 요소를 페이지에 추가
                 boardItem.appendChild(detailElement);
                 });
+
+        fetch(`/api/v1/boardFileView/${boardNo}`).then(response => response.json())
+            .then(file => { // 백엔드로부터 받은 객체가 file로 들어옴
+                //기존 내용 초기화
+                downloadfile.innerHTML = '';
+                console.log(file);
+
+                // files 배열을 순회하며 각 파일 객체를 처리
+                file.forEach(file => {
+                    // 게시물 상세 내용을 담을 컨테이너 요소 생성 (div 사용)
+                    const fileElement = document.createElement('div');
+                    fileElement.className = 'board-detail-item'; // CSS 클래스명 지정
+                    const listItem = document.createElement('li');  // <li> 태그 생성
+
+                    const fileLink = document.createElement('a');  // <a> 태그 생성
+
+                    fileLink.href = '/download/' + file.filenameSaved; // <a> 태그의 href 속성에 다운로드 URL 설정
+                    fileLink.textContent = file.filenameOri; // 파일 객체 안의 filenameOri에 접근
+
+                    listItem.appendChild(fileLink); // <li> 태그 안에 <a> 태그 추가
+
+                    fileElement.appendChild(listItem); // <div> 태그 안에 <li> 태그 추가
+
+                    // downloadfile 요소에 추가
+                    downloadfile.appendChild(fileElement);
+                });
+            })
     }
     //백엔드단에서 프론트단 데이터 가져온다
 

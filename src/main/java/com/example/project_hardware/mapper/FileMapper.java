@@ -6,12 +6,13 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface FileMapper {
 
     // 이미지 파일 업로드 후 DB에 삽입
-    @Insert("INSERT INTO uploadimg(filename_ori, filename_saved) VALUES(#{filenameOri}, #{filenameSav})")
+    @Insert("INSERT INTO uploadimg(filename_ori, filename_saved) VALUES(#{filenameOri}, #{filenameSaved})")
     void insertImg(UploadFile uploadFileInfo);
 
     //@Update("UPDATE uploadimg SET board_no = ${boardNo}")
@@ -24,7 +25,7 @@ public interface FileMapper {
     void deleteImg(List<String> uploadfiles);
 
     // 첨부파일 업로드 후 DB에 삽입
-    @Insert("INSERT INTO uploadfile(filename_ori, filename_saved) VALUES(#{filenameOri}, #{filenameSav})")
+    @Insert("INSERT INTO uploadfile(filename_ori, filename_saved) VALUES(#{filenameOri}, #{filenameSaved})")
     void insertFile(UploadFile uploadFileInfo);
 
     // 업로드한 첨부파일에 게시물번호를 부여함으로써 활성화
@@ -38,7 +39,8 @@ public interface FileMapper {
     List<String> selectImgBoardNo(int boardNo);
 
     // 게시글 번호에 맞는 첨부파일 DB에서 검색
-    @Select("SELECT filename_saved FROM uploadfile WHERE board_no = #{boardNo}")
-    List<String> selectFileBoardNo(int boardNo);
+    // 단순히 이미지 파일때와 같이 저장파일명만 검색하면 안되서 DTO를 이용하는 식으로 쿼리를 조금 변경함
+    @Select("SELECT filename_ori as filenameOri, filename_saved as filenameSaved FROM uploadfile WHERE board_no = #{boardNo}")
+    List<UploadFile> selectFileBoardNo(int boardNo);
 
 }

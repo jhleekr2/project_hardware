@@ -63,7 +63,7 @@ public class FileServiceImpl implements FileService{
             UploadFile uploadFileInfo = new UploadFile();
             // 기존 파일명과 저장되는 파일명을 DTO에 대입
             uploadFileInfo.setFilenameOri(orgFilename);
-            uploadFileInfo.setFilenameSav(saveFilename);
+            uploadFileInfo.setFilenameSaved(saveFilename);
             // DB에 파일 기록하고 DB기록이 실패하면 파일 업로드가 더이상 진행되지 않음
 
             // 일반 파일 업로드인지, 이미지 파일 업로드인지에 따라 저장하는 DB가 달라지는 로직 추가 예정
@@ -141,7 +141,7 @@ public class FileServiceImpl implements FileService{
     }
 
     @Override
-    public List<String> selectUploadFileBoardNo(int boardNo) {
+    public List<UploadFile> selectUploadFileBoardNo(int boardNo) {
         return fileMapper.selectFileBoardNo(boardNo);
     }
 }

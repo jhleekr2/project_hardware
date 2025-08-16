@@ -37,11 +37,11 @@ public class SecurityConfig {
                 //cors - 특정 서버로만 데이터를 넘길 수 있도록 설정 - 이 부분은 생략
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 //세션 설정
-                .authorizeHttpRequests(authz->authz.requestMatchers("/", "/loginPage", "/logout", "/registerPage", "/bbs/board", "/bbs/view/**", "/img/**")
+                .authorizeHttpRequests(authz->authz.requestMatchers("/", "/loginPage", "/logout", "/registerPage", "/bbs/board", "/bbs/view/**", "/img/**", "/download/**")
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, "/login", "/register").permitAll()
                         .requestMatchers("/resources/**", "/WEB-INF/**").permitAll()
-                        .requestMatchers("/api/v1/board", "/api/v1/boardView/**", "/api/v1/delete/**", "/api/v1e/board", "/ap1/v1/rollback").permitAll()
+                        .requestMatchers("/api/v1/board", "/api/v1/boardView/**", "/api/v1/delete/**", "/api/v1e/board", "/ap1/v1/rollback", "/api/v1/boardFileView/**").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/v1/count/**").permitAll()
                         .requestMatchers("/bbs/insert", "/bbs/update/**").hasAnyAuthority("ADMIN", "MANAGER", "MEMBER")
                         .requestMatchers(HttpMethod.POST, "/api/v1/write", "/api/v1/uploadimg", "/api/v1/uploadfile").hasAnyAuthority("ADMIN", "MANAGER", "MEMBER")

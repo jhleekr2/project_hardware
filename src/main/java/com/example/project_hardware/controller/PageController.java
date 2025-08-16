@@ -32,7 +32,10 @@ public class PageController {
     //URL과 실제 파일 위치를 연결(매핑)하는 식으로 파일을 관리한다.
     // application.properties 에서 설정한 업로드 폴더 경로 주입하여 uploadPath에 넣음
     @Value("${board.imgdir}")
-    private String uploadPath;
+    private String uploadPathImg;
+
+    @Value("${board.uploaddir}")
+    private String uploadPathFile;
 
     @Autowired
     BoardService boardService;
@@ -91,7 +94,7 @@ public class PageController {
     @ResponseBody // 이 메서드의 응답만 RestController처럼 처리 Unknown return value type 에러 해결목적
     public byte[] printEditorImage(@PathVariable final String filename) {
         // 업로드된 파일의 전체 경로
-        String fileFullPath = Paths.get(uploadPath, filename).toString();
+        String fileFullPath = Paths.get(uploadPathImg, filename).toString();
 
         // 파일이 없는 경우 예외 throw
         File uploadedFile = new File(fileFullPath);
@@ -104,6 +107,29 @@ public class PageController {
             byte[] imageBytes = Files.readAllBytes(uploadedFile.toPath());
             return imageBytes;
 
+        } catch (IOException e) {
+            // 예외 처리는 따로 해줘야 함
+            throw new RuntimeException(e);
+        }
+    }
+
+    // 업로드한 파일 내용 조회
+    @GetMapping(value = "/download/{filename}")
+    @ResponseBody
+    public byte[] downloadFile(@PathVariable final String filename) {
+        // 업로드된 파일의 전체 경로
+        String fileFullPath = Paths.get(uploadPathFile, filename).toString();
+
+        // 파일이 없는 경우 예외 throw
+        File uploadedFile = new File(fileFullPath);
+        if (uploadedFile.exists() == false) {
+            throw new RuntimeException();
+        }
+
+        try {
+            // 업로드된 파일을 byte[]로 변환 후 반환
+            byte[] fileBytes = Files.readAllBytes(uploadedFile.toPath());
+            return fileBytes;
         } catch (IOException e) {
             // 예외 처리는 따로 해줘야 함
             throw new RuntimeException(e);
