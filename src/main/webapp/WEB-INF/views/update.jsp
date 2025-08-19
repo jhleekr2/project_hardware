@@ -20,9 +20,31 @@
 <form id="menuForm">
     <h2 id="menuAdminH2">게시물 수정</h2>
     <div id="boardItem">
+        <input type="hidden" id="userNum" name="userNum" value="\${board.userNum}" readonly>
+        <label for="id">회원아이디</label>
+        <input type="text" id="id" name="id" maxlength="20" value="\${board.id}" readonly>
+        <br>
+        <label for="title">제목</label>
+        <input type="text" id="title" name="title" maxlength="50" value="\${board.title}">
+        <br>
+        <label for="content">내용</label>
+        <!-- 에디터를 적용할 요소 (컨테이너) -->
+        <div id="content">
 
+        </div>
+        <br>
+        <label for="nick">닉네임</label>
+        <input type="text" id="nick" name="nick" maxlength="10" value="\${board.nick}" readonly>
+        <br>
+        <label for="writeDate">작성일</label>
+        <input type="text" id="writeDate" name="writeDate" value="\${board.writeDate}" readonly>
+        <br>
+        <button type="button" id="buttonSubmit">수정된 게시물 적용</button>  <p> <button type="button" id="buttonCancel">취소</button>
     </div>
 </form>
+
+<div id="downloadfile">
+</div>
 
 <div id="boardEdit">
 <button id="modify" onclick="location.href='/api/v1/bbs/update/${boardNo}'">수정</button>
@@ -59,48 +81,61 @@
         fetch(`/api/v1/boardView/${boardNo}`).then(response => response.json())
             .then(board => { // 백엔드에서 받은 Board 객체가 board로 들어옴.
                 // 기존 내용 초기화
-                boardItem.innerHTML = '';
+                //boardItem.innerHTML = '';
                 console.log(board);
                 // 백엔드에서 받은 Board 객체
-                // 탈퇴한 회원의
-                if(board.id == null) {
-                    board.id = "탈퇴한 회원입니다";
-                }
-                if(board.nick == null) {
-                    board.nick = "탈퇴한 회원입니다";
-                }
+                // // 탈퇴한 회원의
+                // if(board.id == null) {
+                //     board.id = "탈퇴한 회원입니다";
+                // }
+                // if(board.nick == null) {
+                //     board.nick = "탈퇴한 회원입니다";
+                // }
+                const memberId = board.id || "탈퇴한 회원입니다.";
+                const memberNick = board.nick || "탈퇴한 회원입니다.";
 
-                // 게시물 상세 내용을 담을 컨테이너 요소 생성 (div 사용)
-                const detailElement = document.createElement('div');
-                detailElement.className = 'board-detail-item'; // CSS 클래스명 지정
+                // 폼 내부에 값 할당
+                menuForm.querySelector('#userNum').value = board.userNum;
+                menuForm.querySelector('#id').value = memberId;
+                menuForm.querySelector('#title').value = board.title;
 
-                // HTML 내용을 innerHTML로 설정
-                detailElement.innerHTML = `
-                <input type="hidden" id="userNum" name="userNum" value="\${board.userNum}" readonly>
-                <label for="id">회원아이디</label>
-                <input type="text" id="id" name="id" maxlength="20" value="\${board.id}" readonly>
-                <br>
-                <label for="title">제목</label>
-                <input type="text" id="title" name="title" maxlength="50" value="\${board.title}">
-                <br>
-                <label for="content">내용</label>
-                <!-- 에디터를 적용할 요소 (컨테이너) -->
-                <div id="content">
+                // 내용은 div에 innerHTML로 채웁니다.
+                //menuForm.querySelector('#contentDisplay').innerHTML = board.content;
 
-                </div>
-                <br>
-                <label for="nick">닉네임</label>
-                <input type="text" id="nick" name="nick" maxlength="10" value="\${board.nick}" readonly>
-                <br>
-                <label for="writeDate">작성일</label>
-                <input type="text" id="writeDate" name="writeDate" value="\${board.writeDate}" readonly>
-                <br>
-                <label for="hit">조회수</label>
-                <br>
-                <button type="button" id="buttonSubmit">수정된 게시물 적용</button>  <p> <button type="button" id="buttonCancel">취소</button>
-            `;
-                // 생성된 요소를 페이지에 추가
-                boardItem.appendChild(detailElement);
+                menuForm.querySelector('#nick').value = memberNick;
+                menuForm.querySelector('#writeDate').value = board.writeDate;
+
+            //     // 게시물 상세 내용을 담을 컨테이너 요소 생성 (div 사용)
+            //     const detailElement = document.createElement('div');
+            //     detailElement.className = 'board-detail-item'; // CSS 클래스명 지정
+            //
+            //     // HTML 내용을 innerHTML로 설정
+            //     detailElement.innerHTML = `
+            //     <input type="hidden" id="userNum" name="userNum" value="\${board.userNum}" readonly>
+            //     <label for="id">회원아이디</label>
+            //     <input type="text" id="id" name="id" maxlength="20" value="\${board.id}" readonly>
+            //     <br>
+            //     <label for="title">제목</label>
+            //     <input type="text" id="title" name="title" maxlength="50" value="\${board.title}">
+            //     <br>
+            //     <label for="content">내용</label>
+            //     <!-- 에디터를 적용할 요소 (컨테이너) -->
+            //     <div id="content">
+            //
+            //     </div>
+            //     <br>
+            //     <label for="nick">닉네임</label>
+            //     <input type="text" id="nick" name="nick" maxlength="10" value="\${board.nick}" readonly>
+            //     <br>
+            //     <label for="writeDate">작성일</label>
+            //     <input type="text" id="writeDate" name="writeDate" value="\${board.writeDate}" readonly>
+            //     <br>
+            //     <label for="hit">조회수</label>
+            //     <br>
+            //     <button type="button" id="buttonSubmit">수정된 게시물 적용</button>  <p> <button type="button" id="buttonCancel">취소</button>
+            // `;
+            //     // 생성된 요소를 페이지에 추가
+            //     boardItem.appendChild(detailElement);
 
                 const editor = new toastui.Editor({
                     el: document.querySelector('#content'), // 에디터를 적용할 요소 (컨테이너)
@@ -254,7 +289,34 @@
                     });
                 });
 
+            });
+
+        fetch(`/api/v1/boardFileView/${boardNo}`).then(response => response.json())
+            .then(file => { // 백엔드로부터 받은 객체가 file로 들어옴
+                //기존 내용 초기화
+                downloadfile.innerHTML = '';
+                console.log(file);
+
+                // files 배열을 순회하며 각 파일 객체를 처리
+                file.forEach(file => {
+                    // 게시물 상세 내용을 담을 컨테이너 요소 생성 (div 사용)
+                    const fileElement = document.createElement('div');
+                    fileElement.className = 'board-detail-item'; // CSS 클래스명 지정
+                    const listItem = document.createElement('li');  // <li> 태그 생성
+
+                    const fileLink = document.createElement('a');  // <a> 태그 생성
+
+                    fileLink.href = '/download/' + file.filenameSaved; // <a> 태그의 href 속성에 다운로드 URL 설정
+                    fileLink.textContent = file.filenameOri; // 파일 객체 안의 filenameOri에 접근
+
+                    listItem.appendChild(fileLink); // <li> 태그 안에 <a> 태그 추가
+
+                    fileElement.appendChild(listItem); // <div> 태그 안에 <li> 태그 추가
+
+                    // downloadfile 요소에 추가
+                    downloadfile.appendChild(fileElement);
                 });
+            })
     }
     //백엔드단에서 프론트단 데이터 가져온다
 
@@ -292,6 +354,8 @@
             console.log("Error가 발생",error);
         });
     }
+
+
 
 </script>
 

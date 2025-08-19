@@ -17,7 +17,26 @@
 <form id="menuForm">
     <h2 id="menuAdminH2">게시물 조회</h2>
     <div id="boardItem">
+        <input type="hidden" id="userNum" name="userNum" value="\${board.userNum}" readonly>
+        <label for="id">회원아이디</label>
+        <input type="text" id="id" name="id" maxlength="20" value="\${board.id}" readonly>
+        <br>
+        <label for="title">제목</label>
+        <input type="text" id="title" name="title" maxlength="10" value="\${board.title}" readonly>
+        <br>
+        <label for="content">내용</label>
+        <div id="contentDisplay">
 
+        </div>
+        <br>
+        <label for="nick">닉네임</label>
+        <input type="text" id="nick" name="nick" maxlength="10" value="\${board.nick}" readonly>
+        <br>
+        <label for="writeDate">작성일</label>
+        <input type="text" id="writeDate" name="writeDate" value="\${board.writeDate}" readonly>
+        <br>
+        <label for="hit">조회수</label>
+        <input type="text" id="hit" name="hit" value="\${board.hit}" readonly>
     </div>
 </form>
 <div id="downloadfile">
@@ -39,47 +58,43 @@
     const boardNo = window.location.pathname.split('/').pop();
 
     function fetchDetail() {
+        // 폼 요소를 먼저 가져옵니다.
+        const menuForm = document.getElementById('menuForm');
+
         fetch(`/api/v1/boardView/${boardNo}`).then(response => response.json())
             .then(board => { // 백엔드에서 받은 Board 객체가 board로 들어옴.
                 // 기존 내용 초기화
-                boardItem.innerHTML = '';
+                // boardItem.innerHTML = '';
                 console.log(board);
                 // 백엔드에서 받은 Board 객체
-                // 탈퇴한 회원의
-                if(board.id == null) {
-                    board.id = "탈퇴한 회원입니다";
-                }
-                if(board.nick == null) {
-                    board.nick = "탈퇴한 회원입니다";
-                }
+                // // 탈퇴한 회원의
+                // if(board.id == null) {
+                //     board.id = "탈퇴한 회원입니다";
+                // }
+                // if(board.nick == null) {
+                //     board.nick = "탈퇴한 회원입니다";
+                // }
+                const memberId = board.id || "탈퇴한 회원입니다.";
+                const memberNick = board.nick || "탈퇴한 회원입니다.";
 
-                // 게시물 상세 내용을 담을 컨테이너 요소 생성 (div 사용)
-                const detailElement = document.createElement('div');
-                detailElement.className = 'board-detail-item'; // CSS 클래스명 지정
+                // 폼 내부에 값 할당
+                menuForm.querySelector('#userNum').value = board.userNum;
+                menuForm.querySelector('#id').value = memberId;
+                menuForm.querySelector('#title').value = board.title;
 
-                // HTML 내용을 innerHTML로 설정
-                detailElement.innerHTML = `
-                <input type="hidden" id="userNum" name="userNum" value="\${board.userNum}" readonly>
-                <label for="id">회원아이디</label>
-                <input type="text" id="id" name="id" maxlength="20" value="\${board.id}" readonly>
-                <br>
-                <label for="title">제목</label>
-                <input type="text" id="title" name="title" maxlength="10" value="\${board.title}" readonly>
-                <br>
-                <label for="content">내용</label>`
-                    + board.content + `
-                <br>
-                <label for="nick">닉네임</label>
-                <input type="text" id="nick" name="nick" maxlength="10" value="\${board.nick}" readonly>
-                <br>
-                <label for="writeDate">작성일</label>
-                <input type="text" id="writeDate" name="writeDate" value="\${board.writeDate}" readonly>
-                <br>
-                <label for="hit">조회수</label>
-                <input type="text" id="hit" name="hit" value="\${board.hit}" readonly>
-            `;
+                // 내용은 div에 innerHTML로 채웁니다.
+                menuForm.querySelector('#contentDisplay').innerHTML = board.content;
+
+                menuForm.querySelector('#nick').value = memberNick;
+                menuForm.querySelector('#writeDate').value = board.writeDate;
+                menuForm.querySelector('#hit').value = board.hit;
+
+                // 모든 input 필드를 읽기 전용으로 설정
+                menuForm.querySelectorAll('input').forEach(input => {
+                    input.readOnly = true;
+                });
                 // 생성된 요소를 페이지에 추가
-                boardItem.appendChild(detailElement);
+                // boardItem.appendChild(detailElement);
                 });
 
         fetch(`/api/v1/boardFileView/${boardNo}`).then(response => response.json())
