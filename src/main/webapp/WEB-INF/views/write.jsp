@@ -67,11 +67,11 @@
     let usedImageUrls = [];
     // 이미지 업로드가 이루어졌는지 체크하여 업로드창이 닫힐때 업로드를 취소하는 로직이 실행되지 않도록 하는 체크섬 변수
     // let issubmit = false;
-    // 업로드된 일반 파일의 고유 ID(파일명) 저장 배열
+    // 업로드된 일반 파일명 저장 배열
     let uploadedFileIds = [];
-    // 최종적으로 사용된 일반 파일의 고유 ID(파일명) 저장 배열
+    // 최종적으로 사용된 일반 파일명 저장 배열
     // let usedFileIds = [];
-    // 업로드 후 삭제된 일반 파일의 고유 ID(파일명) 저장 배열
+    // 업로드 후 삭제된 일반 파일명 저장 배열
     let deletedFileIds = [];
 
     const editor = new toastui.Editor({

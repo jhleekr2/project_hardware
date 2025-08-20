@@ -293,14 +293,26 @@ public class BoardRestController {
         List<String> uploadfiles = boardWithFile.getUploadfile();
         // 그중 최종 확인 전에 삭제된 파일 목록 꺼내기
         List<String> deletedfiles = boardWithFile.getDeletedfile();
+        // 업로드한 일반 파일 목록 꺼내기
+        List<String> uploadgeneralfiles = boardWithFile.getUploadgeneralfile();
+        // 그중 최종 확인 전에 삭제된 일반 파일 목록 꺼내기
+        List<String> deletedgeneralfiles = boardWithFile.getDeletedgeneralfile();
+
+
         //List<String> remainedfiles = new ArrayList<>();
         //업로드한 파일 목록에서 삭제된 파일 목록을 제거하고 남은 파일 목록 만들기
         uploadfiles.removeAll(deletedfiles);
         // 남은 파일 목록을 기존의 boardWithFile에 대입
         boardWithFile.setUploadfile(uploadfiles);
 
+        //업로드한 파일 목록에서 삭제된 파일 목록을 제거하고 남은 파일 목록 만들기
+        uploadgeneralfiles.removeAll(deletedgeneralfiles);
+        // 남은 파일 목록을 기존의 boardWithFile에 대입
+        boardWithFile.setUploadgeneralfile(uploadgeneralfiles);
+
         // 삭제된 파일 제거 - 저장소에서 삭제하고, DB에서도 제거한다.
         fileService.deleteFile(FileRole.IMAGE, uploadPathImg, deletedfiles);
+        fileService.deleteFile(FileRole.FILE, uploadPathFile, deletedgeneralfiles);
 
         // 게시글 수정하여 DB에 반영
         boardService.boardModify(boardWithFile);

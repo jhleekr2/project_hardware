@@ -5,6 +5,7 @@ import com.example.project_hardware.dto.UploadFile;
 import com.example.project_hardware.mapper.FileMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -94,6 +95,7 @@ public class FileServiceImpl implements FileService{
     }
 
     @Override
+    @Transactional
     public void deleteFile(FileRole fileRole, String path, List<String> deletedfiles) {
         //deletedfiles가 null이 들어올때 많은 예외를 일으키므로 예외를 일으키지 않도록 회피
         //모든 로직들을 null이 아닐때만 실행되도록 조건문으로 감싸주었다.
