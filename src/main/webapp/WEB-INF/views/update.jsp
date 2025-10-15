@@ -366,7 +366,31 @@
                     fileLink.href = '/download/' + file.filenameSaved; // <a> 태그의 href 속성에 다운로드 URL 설정
                     fileLink.textContent = file.filenameOri; // 파일 객체 안의 filenameOri에 접근
 
+                    // 기존 업로드 파일 삭제버튼 만들기
+                    const deleteButton = document.createElement('a');
+                    deleteButton.href = '#';
+                    deleteButton.textContent = ' (기존 파일 삭제)';
+                    deleteButton.style.marginLeft = '10px';
+                    deleteButton.style.color = 'red';
+
+                    //  삭제 버튼 클릭 이벤트
+                    deleteButton.onclick = (event) => {
+                        event.preventDefault();
+
+                        // 삭제 목록에 추가 (서버에서 지울 파일)
+                        deletedFileIds.push(file.filenameSaved);
+
+                        // 화면에서 파일 목록 항목 제거
+                        fileElement.remove();
+
+                        // 참고: uploadedFileIds에서는 제거하지 않아도 됩니다.
+                        // 서버에서 uploadedFileIds와 deletedFileIds를 비교하여 최종적으로 남아있는 파일을 처리하거나,
+                        // 이 파일을 '삭제 목록'으로만 활용하면 됩니다.
+                    }
+
+
                     listItem.appendChild(fileLink); // <li> 태그 안에 <a> 태그 추가
+                    listItem.appendChild(deleteButton); // <li> 태그 안에 파일삭제 <a> 태그 추가
 
                     fileElement.appendChild(listItem); // <div> 태그 안에 <li> 태그 추가
 
