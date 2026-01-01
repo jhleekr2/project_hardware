@@ -41,6 +41,9 @@
 <%--        </c:forEach>--%>
         </tbody>
     </table>
+</div>
+
+<div id="paging">
 
 </div>
 <c:if test="${isAuthenticated != null && isAuthenticated == true}">

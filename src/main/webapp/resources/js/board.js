@@ -2,11 +2,13 @@
     //즉 객체들을 자바스크립트와 연결시키는 과정
     const container = document.getElementById("container");
     const boardList = document.getElementById("boardList");
+    const paging = document.getElementById("paging");
 
     function fetchBoard() {
     fetch("/api/v1/board").then(response => response.json())
         .then(list => {
             boardList.innerHTML = '';//기존메뉴목록을 초기화
+            paging.innerHTML = '';//기존페이지목록을 초기화
             console.log(list);
             console.log(list.content);
             console.log(list.page);
@@ -52,7 +54,19 @@
                 });
                 boardList.appendChild(boardItem);
             })
+            const totalPages = list.page.totalPages;
+            const numberPage = list.page.number;
+            for (let i = 0; i < numberPage + 10 ; i++) {
+                const pageItem = document.createElement('li');
+                pageItem.className = 'paging-item';
+                pageItem.innerHTML = `<a href="#" style="margin:5px; text-decoration:none;">${i + 1}</a>`;
 
+                pageItem.querySelector('a').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    console.log(`${i}번 페이지로 이동합니다.`);
+                });
+                paging.appendChild(pageItem);
+            }
         })
     //백엔드단에서 프론트단 데이터 가져온다
 }
