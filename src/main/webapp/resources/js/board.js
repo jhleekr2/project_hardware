@@ -4,8 +4,8 @@
     const boardList = document.getElementById("boardList");
     const paging = document.getElementById("paging");
 
-    function fetchBoard() {
-    fetch("/api/v1/board").then(response => response.json())
+    function fetchBoard(page= 0) {
+    fetch(`/api/v1/board?page=${page}`).then(response => response.json())
         .then(list => {
             boardList.innerHTML = '';//기존메뉴목록을 초기화
             paging.innerHTML = '';//기존페이지목록을 초기화
@@ -54,9 +54,15 @@
                 });
                 boardList.appendChild(boardItem);
             })
+
+            // 페이지네이션 구현 코드(SSR대신 CSR방식 페이지네이션 구현)
             const totalPages = list.page.totalPages;
             const numberPage = list.page.number;
-            for (let i = 0; i < numberPage + 10 ; i++) {
+
+            let startPage = Math.max(0, numberPage)
+            let endPage = Math.min(totalPages, startPage + 10)
+
+            for (let i = startPage ; i < endPage ; i++) {
                 const pageItem = document.createElement('li');
                 pageItem.className = 'paging-item';
                 pageItem.innerHTML = `<a href="#" style="margin:5px; text-decoration:none;">${i + 1}</a>`;
@@ -64,6 +70,9 @@
                 pageItem.querySelector('a').addEventListener('click', (e) => {
                     e.preventDefault();
                     console.log(`${i}번 페이지로 이동합니다.`);
+
+                    // 페이지 클릭하면 fetchBoard를 재호출함
+                    fetchBoard(i);
                 });
                 paging.appendChild(pageItem);
             }
@@ -85,4 +94,6 @@
 })
 }
     //메인페이지가 열리면 자동실행됨
-    window.addEventListener('load',fetchBoard);
+    window.addEventListener('load', () => {
+        fetchBoard(0);
+    });
