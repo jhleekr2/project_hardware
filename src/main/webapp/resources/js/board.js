@@ -59,8 +59,19 @@
             const totalPages = list.page.totalPages;
             const numberPage = list.page.number;
 
-            let startPage = Math.max(0, numberPage)
+            let startPage = Math.floor(numberPage / 10) * 10;
             let endPage = Math.min(totalPages, startPage + 10)
+
+            if(startPage >= 10) {
+                const PrevPage = document.createElement('li');
+                PrevPage.className = 'paging-item';
+                PrevPage.innerHTML = '<a href="#" style="margin:5px; text-decoration:none;"><<</a>'
+                PrevPage.querySelector('a').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    fetchBoard(startPage - 10);
+                });
+                paging.appendChild(PrevPage);
+            }
 
             for (let i = startPage ; i < endPage ; i++) {
                 const pageItem = document.createElement('li');
@@ -75,6 +86,17 @@
                     fetchBoard(i);
                 });
                 paging.appendChild(pageItem);
+            }
+
+            if (endPage < totalPages) {
+                const NextPage = document.createElement('li');
+                NextPage.className = 'paging-item';
+                NextPage.innerHTML = '<a href="#" style="margin:5px; text-decoration:none;">>></a>';
+                NextPage.querySelector('a').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    fetchBoard(endPage); // 다음 블록의 시작 페이지(i.e. 현재 블록의 끝)로 이동
+                });
+                paging.appendChild(NextPage);
             }
         })
     //백엔드단에서 프론트단 데이터 가져온다
