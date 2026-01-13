@@ -172,5 +172,10 @@ public class BoardServiceImpl implements BoardService{
         return new PageImpl<>(result, pageable, total);
     }
 
+    @Override
+    public List<Comment> listComment(int boardNo) {
+        //게시글에 상응하는 댓글 조회
+        return boardMapper.viewComments(boardNo);
+    }
 
 }

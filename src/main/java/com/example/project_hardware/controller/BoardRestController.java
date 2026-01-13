@@ -350,4 +350,22 @@ public class BoardRestController {
         return ResponseEntity.ok("게시물 삭제 완료!");
     }
 
+    // 여기서부터는 댓글관련 API
+    @GetMapping("/api/v1/comment/view/{boardNo}")
+    public ResponseEntity<List<Comment>> commentView(@PathVariable int boardNo) {
+        // 댓글 리스트 조회(댓글은 한개가 아니기 떄문에 List<Comment> 사용)
+        List<Comment> comments = boardService.listComment(boardNo);
+        if(comments != null && !comments.isEmpty()) {
+            return ResponseEntity.ok(comments); // HTTP 상태메시지가 200대인지 확인하여 그렇다면 데이터를 백에서 프론트로 넘김
+        } else {
+            return ResponseEntity.noContent().build();//상태코드 204번 NoContent 반환
+        }
+    }
+
+    // 댓글 쓰기 API
+    @PostMapping("/api/v1/comment/write/{boardNo}")
+    public ResponseEntity<String> commentWrite(Authentication authentication, @RequestBody Comment comment) {
+        return null;
+    }
+
 }

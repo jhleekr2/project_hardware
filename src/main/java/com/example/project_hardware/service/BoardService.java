@@ -3,6 +3,7 @@ package com.example.project_hardware.service;
 import com.example.project_hardware.dto.Board;
 import com.example.project_hardware.dto.BoardWithFile;
 import com.example.project_hardware.dto.BoardWithWriter;
+import com.example.project_hardware.dto.Comment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -29,4 +30,7 @@ public interface BoardService {
 
     // 페이징을 적용하여 조회
     public Page<Map<String, Object>> getListBoard(BoardWithWriter board, Pageable pageable);
+
+    // 게시물의 댓글을 조회
+    public List<Comment> listComment(int boardNo);
 }

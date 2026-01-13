@@ -2,6 +2,7 @@ package com.example.project_hardware.mapper;
 
 import com.example.project_hardware.dto.Board;
 import com.example.project_hardware.dto.BoardWithWriter;
+import com.example.project_hardware.dto.Comment;
 import com.example.project_hardware.dto.RequestList;
 import org.apache.ibatis.annotations.*;
 
@@ -45,4 +46,8 @@ public interface BoardMapper {
 
     //@Select("SELECT count(*) as cnt from board")
     int viewBoardCount(BoardWithWriter board);
+
+    //게시물에 해당하는 댓글 조회
+    @Select("SELECT comment_no, user_num, write_date, content from comment where board_no = #{boardNo}")
+    List<Comment> viewComments(int boardNo);
 }
