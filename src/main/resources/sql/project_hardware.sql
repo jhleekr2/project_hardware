@@ -72,6 +72,14 @@ ALTER TABLE `project_hardware`.`uploadimg`
     ADD PRIMARY KEY (`filename_saved`);
 ;
 
+ALTER TABLE `project_hardware`.`comment`
+    CHANGE COLUMN `comment_no` `comment_no` INT NOT NULL AUTO_INCREMENT ,
+    ADD PRIMARY KEY (`comment_no`);
+;
+
+ALTER TABLE `project_hardware`.`comment`
+    CHANGE COLUMN `write_date` `write_date` DATETIME NOT NULL ;
+
 ALTER TABLE `nestedcomment_recommend` ADD CONSTRAINT `PK_NESTEDCOMMENT_RECOMMEND` PRIMARY KEY (
 	`ID`
 );

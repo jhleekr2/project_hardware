@@ -365,6 +365,9 @@ public class BoardRestController {
     // 댓글 쓰기 API
     @PostMapping("/api/v1/comment/write/{boardNo}")
     public ResponseEntity<String> commentWrite(Authentication authentication, @RequestBody Comment comment) {
+        // Authentication 사실은 필요가 크게 없지만(프론트단에서 로그인 회원 정보 입력되어 넘어올거라)
+        // 일단은 그냥 남겨둔다
+        boardService.writeComment(comment);
         return null;
     }
 

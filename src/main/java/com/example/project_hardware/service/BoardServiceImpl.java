@@ -178,4 +178,10 @@ public class BoardServiceImpl implements BoardService{
         return boardMapper.viewComments(boardNo);
     }
 
+    @Override
+    public void writeComment(Comment comment) {
+        //댓글 추가
+        boardMapper.writeComments(comment);
+    }
+
 }

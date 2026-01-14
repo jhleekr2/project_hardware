@@ -48,6 +48,15 @@ public interface BoardMapper {
     int viewBoardCount(BoardWithWriter board);
 
     //게시물에 해당하는 댓글 조회
-    @Select("SELECT comment_no, user_num, write_date, content from comment where board_no = #{boardNo}")
+    @Select("SELECT comment_no as commentNo, user_num as userNum, write_date as writeDate, content from comment where board_no = #{boardNo}")
     List<Comment> viewComments(int boardNo);
+
+    //게시글에 댓글 추가
+    @Insert("INSERT INTO comment(board_no, user_num, write_date, content) values(#{boardNo}, #{userNum}, NOW(), #{content})")
+    void writeComments(Comment comment);
+
+    //게시글 댓글 업데이트
+
+    //게시글 댓글 삭제
+
 }

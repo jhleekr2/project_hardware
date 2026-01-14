@@ -3,35 +3,40 @@ package com.example.project_hardware.dto;
 import java.util.Date;
 
 public class Comment {
+    private int commentNo;
     private int boardNo;
     private int userNum;
     private Date writeDate;
-    private String title;
     private String content;
-    private int hit;
 
     public Comment() {
     }
 
-    public Comment(int boardNo, int userNum, Date writeDate, String title, String content, int hit) {
+    public Comment(int commentNo, int boardNo, int userNum, Date writeDate, String content) {
+        this.commentNo = commentNo;
         this.boardNo = boardNo;
         this.userNum = userNum;
         this.writeDate = writeDate;
-        this.title = title;
         this.content = content;
-        this.hit = hit;
     }
 
     @Override
     public String toString() {
         return "Comment{" +
-                "boardNo=" + boardNo +
+                "commentNo=" + commentNo +
+                ", boardNo=" + boardNo +
                 ", userNum=" + userNum +
                 ", writeDate=" + writeDate +
-                ", title='" + title + '\'' +
                 ", content='" + content + '\'' +
-                ", hit=" + hit +
                 '}';
+    }
+
+    public int getCommentNo() {
+        return commentNo;
+    }
+
+    public void setCommentNo(int commentNo) {
+        this.commentNo = commentNo;
     }
 
     public int getBoardNo() {
@@ -58,27 +63,11 @@ public class Comment {
         this.writeDate = writeDate;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public String getContent() {
         return content;
     }
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public int getHit() {
-        return hit;
-    }
-
-    public void setHit(int hit) {
-        this.hit = hit;
     }
 }

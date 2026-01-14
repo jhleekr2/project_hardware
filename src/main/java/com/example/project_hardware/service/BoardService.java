@@ -33,4 +33,7 @@ public interface BoardService {
 
     // 게시물의 댓글을 조회
     public List<Comment> listComment(int boardNo);
+
+    // 게시물의 댓글 쓰기
+    public void writeComment(Comment comment);
 }
