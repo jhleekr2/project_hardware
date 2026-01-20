@@ -47,6 +47,9 @@
 <button id="delete">삭제</button>
 </div>
 
+<div id="comment">
+</div>
+
 <%@ include file="/WEB-INF/views/common/footer.jsp" %>
 
 <script type="text/javascript">
@@ -122,6 +125,11 @@
                     // downloadfile 요소에 추가
                     downloadfile.appendChild(fileElement);
                 });
+            })
+
+        fetch(`/api/v1/comment/view/${boardNo}`).then(response => response.json())
+            .then(comment => {
+                console.log(comment);
             })
     }
     //백엔드단에서 프론트단 데이터 가져온다

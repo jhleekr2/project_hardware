@@ -48,7 +48,7 @@ public interface BoardMapper {
     int viewBoardCount(BoardWithWriter board);
 
     //게시물에 해당하는 댓글 조회
-    @Select("SELECT comment_no as commentNo, user_num as userNum, write_date as writeDate, content from comment where board_no = #{boardNo}")
+    @Select("SELECT comment_no as commentNo, board_no as boardNo, user_num as userNum, write_date as writeDate, content from comment where board_no = #{boardNo}")
     List<Comment> viewComments(int boardNo);
 
     //게시글에 댓글 추가
