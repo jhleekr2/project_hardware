@@ -128,9 +128,47 @@
             })
 
         fetch(`/api/v1/comment/view/${boardNo}`).then(response => response.json())
-            .then(comment => {
-                console.log(comment);
-            })
+            .then(commentList => {
+                console.log(commentList);
+                const commentArea = document.getElementById("comment");
+
+                // 테이블 틀 만들기
+                commentArea.innerHTML = `
+            <table border="1" style="width:100%; text-align:center;">
+                <thead>
+                    <tr>
+                        <th>번호</th>
+                        <th>유저번호</th>
+                        <th>아이디</th>
+                        <th>닉네임</th>
+                        <th>내용</th>
+                        <th>작성일</th>
+                    </tr>
+                </thead>
+                <tbody id="commentBody"></tbody>
+            </table>
+        `;
+
+                const commentBody = document.getElementById("commentBody");
+
+                // 반복문을 돌며 tbody 안에 한 줄씩 쌓기
+                commentList.forEach(comment => {
+                    const tr = document.createElement('tr'); // 줄 생성
+
+                    // 생성한 tr 안에 내용을 채우기
+                    tr.innerHTML = `
+                <td>\${comment.commentNo}</td>
+                <td>\${comment.userNum}</td>
+                <td>\${comment.id}</td>
+                <td>\${comment.nick}</td>
+                <td>\${comment.content}</td>
+                <td>\${comment.writeDate}</td>
+            `;
+
+                    // 완성된 줄을 테이블 몸통(tbody)에 붙인다.
+                    commentBody.appendChild(tr);
+                });
+            });
     }
     //백엔드단에서 프론트단 데이터 가져온다
 
