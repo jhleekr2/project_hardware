@@ -20,23 +20,15 @@ public class CommentWithWriter {
     public CommentWithWriter() {
     }
 
-    public CommentWithWriter(int commentNo, int boardNo, int userNum, Date writeDate, String content) {
+    public CommentWithWriter(int commentNo, int boardNo, int userNum, Date writeDate, String content, String id, String nick, int loginNum) {
         this.commentNo = commentNo;
         this.boardNo = boardNo;
         this.userNum = userNum;
         this.writeDate = writeDate;
         this.content = content;
-    }
-
-    @Override
-    public String toString() {
-        return "Comment{" +
-                "commentNo=" + commentNo +
-                ", boardNo=" + boardNo +
-                ", userNum=" + userNum +
-                ", writeDate=" + writeDate +
-                ", content='" + content + '\'' +
-                '}';
+        this.id = id;
+        this.nick = nick;
+        this.loginNum = loginNum;
     }
 
     public int getCommentNo() {
@@ -77,5 +69,43 @@ public class CommentWithWriter {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getNick() {
+        return nick;
+    }
+
+    public void setNick(String nick) {
+        this.nick = nick;
+    }
+
+    public int getLoginNum() {
+        return loginNum;
+    }
+
+    public void setLoginNum(int loginNum) {
+        this.loginNum = loginNum;
+    }
+
+    @Override
+    public String toString() {
+        return "CommentWithWriter{" +
+                "commentNo=" + commentNo +
+                ", boardNo=" + boardNo +
+                ", userNum=" + userNum +
+                ", writeDate=" + writeDate +
+                ", content='" + content + '\'' +
+                ", id='" + id + '\'' +
+                ", nick='" + nick + '\'' +
+                ", loginNum=" + loginNum +
+                '}';
     }
 }

@@ -1,9 +1,6 @@
 package com.example.project_hardware.service;
 
-import com.example.project_hardware.dto.Board;
-import com.example.project_hardware.dto.BoardWithFile;
-import com.example.project_hardware.dto.BoardWithWriter;
-import com.example.project_hardware.dto.Comment;
+import com.example.project_hardware.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -32,7 +29,7 @@ public interface BoardService {
     public Page<Map<String, Object>> getListBoard(BoardWithWriter board, Pageable pageable);
 
     // 게시물의 댓글을 조회
-    public List<Comment> listComment(int boardNo);
+    public List<CommentWithWriter> listComment(int boardNo);
 
     // 게시물의 댓글 쓰기
     public void writeComment(Comment comment);

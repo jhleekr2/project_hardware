@@ -1,9 +1,6 @@
 package com.example.project_hardware.mapper;
 
-import com.example.project_hardware.dto.Board;
-import com.example.project_hardware.dto.BoardWithWriter;
-import com.example.project_hardware.dto.Comment;
-import com.example.project_hardware.dto.RequestList;
+import com.example.project_hardware.dto.*;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -48,8 +45,8 @@ public interface BoardMapper {
     int viewBoardCount(BoardWithWriter board);
 
     //게시물에 해당하는 댓글 조회
-    @Select("SELECT comment_no as commentNo, board_no as boardNo, user_num as userNum, write_date as writeDate, content from comment where board_no = #{boardNo}")
-    List<Comment> viewComments(int boardNo);
+    @Select("SELECT a.comment_no as commentNo, a.board_no as boardNo, b.ID as id, b.nick as nick, a.user_num as userNum, a.write_date as writeDate, a.content from comment as a left outer join users as b on a.user_num = b.user_num where board_no = #{boardNo}")
+    List<CommentWithWriter> viewComments(int boardNo);
 
     //게시글에 댓글 추가
     @Insert("INSERT INTO comment(board_no, user_num, write_date, content) values(#{boardNo}, #{userNum}, NOW(), #{content})")

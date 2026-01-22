@@ -173,7 +173,7 @@ public class BoardServiceImpl implements BoardService{
     }
 
     @Override
-    public List<Comment> listComment(int boardNo) {
+    public List<CommentWithWriter> listComment(int boardNo) {
         //게시글에 상응하는 댓글 조회
         return boardMapper.viewComments(boardNo);
     }
