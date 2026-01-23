@@ -134,7 +134,7 @@
 
                 // 테이블 틀 만들기
                 commentArea.innerHTML = `
-            <table border="1" style="width:100%; text-align:center;">
+            <table style="border-collapse:collapse; border:1px solid black; width:100%; text-align:center;">
                 <thead>
                     <tr>
                         <th>번호</th>
