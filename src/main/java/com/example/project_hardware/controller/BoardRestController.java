@@ -256,6 +256,9 @@ public class BoardRestController {
         //게시물 정보 조회하여 대입
         board = boardService.viewDetail(boardNo);
 
+        // 여기서 전송된 로그인된 사용자 정보는 댓글 기능에도 사용되어야만 한다.
+        // BoardWithWriter에 있는 변수 중 loginNum에 로그인된 사용자 정보를 담아야 함.
+
         return ResponseEntity.ok(board); // HTTP 상태메시지가 200대인지 확인하여 그렇다면 데이터를 백에서 프론트로 넘김
     }
 
@@ -352,7 +355,7 @@ public class BoardRestController {
 
     // 여기서부터는 댓글관련 API
     @GetMapping("/api/v1/comment/view/{boardNo}")
-    public ResponseEntity<List<CommentWithWriter>> commentView(@PathVariable int boardNo) {
+    public ResponseEntity<List<CommentWithWriter>> commentView(Authentication authentication, @PathVariable int boardNo) {
         // 댓글 리스트 조회(댓글은 한개가 아니기 떄문에 List<Comment> 사용)
         List<CommentWithWriter> comments = boardService.listComment(boardNo);
         if(comments != null && !comments.isEmpty()) {

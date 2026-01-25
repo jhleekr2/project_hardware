@@ -141,6 +141,8 @@ public class PageController {
         // 게시물 조회는 프론트에서 RESTAPI 호출하는 형태로 해야 함(서버사이트 렌더링 대신 클라이언트 사이드 렌더링)
         // 따라서 여기서는 그냥 view만을 전달하는 기능
         // 개발은 RestController에 진행
+        // 참고로 댓글기능때문에 발생하는 로그인 기능은 RESTAPI에서 처리하는 형태로 되어있음
+        
         return "view";
     }
 

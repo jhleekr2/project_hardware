@@ -143,6 +143,7 @@
                         <th>닉네임</th>
                         <th>내용</th>
                         <th>작성일</th>
+                        <th>삭제</th>
                     </tr>
                 </thead>
                 <tbody id="commentBody"></tbody>
@@ -163,6 +164,7 @@
                 <td>\${comment.nick}</td>
                 <td>\${comment.content}</td>
                 <td>\${comment.writeDate}</td>
+                <td>if \${comment.writeDate} == login
             `;
 
                     // 완성된 줄을 테이블 몸통(tbody)에 붙인다.
