@@ -49,7 +49,11 @@
 
 <div id="comment">
 </div>
-
+<div id="commentadd">
+    <form id="commentinsert">
+        <input type="text" id="userNum2" name="userNum" value="\${board.loginNum}" readonly>
+    </form>
+</div>
 <%@ include file="/WEB-INF/views/common/footer.jsp" %>
 
 <script type="text/javascript">
@@ -60,9 +64,13 @@
     const downloadfile = document.getElementById("downloadfile");
     const boardNo = window.location.pathname.split('/').pop();
 
+    //게시물 조회할때 같이 조회하여 전송한 로그인 사용자 번호는 댓글 CRUD 기능에 쓰여야 하므로 전역 변수로 정의한다.
+    var loginNum;
+
     function fetchDetail() {
         // 폼 요소를 먼저 가져옵니다.
         const menuForm = document.getElementById('menuForm');
+        const commentinsert = document.getElementById('commentinsert');
 
         fetch(`/api/v1/boardView/${boardNo}`).then(response => response.json())
             .then(board => { // 백엔드에서 받은 Board 객체가 board로 들어옴.
@@ -80,12 +88,18 @@
                 const memberId = board.id || "탈퇴한 회원입니다.";
                 const memberNick = board.nick || "탈퇴한 회원입니다.";
 
+                // 같이 전달된 로그인 회원번호 기록을 시행
+                loginNum = board.loginNum;
+                console.log(board.loginNum);
+                // 로그인 회원번호 기록을 댓글 추가 폼에 저장
+                commentinsert.querySelector('#userNum2').value = loginNum;
+
                 // 폼 내부에 값 할당
                 menuForm.querySelector('#userNum').value = board.userNum;
                 menuForm.querySelector('#id').value = memberId;
                 menuForm.querySelector('#title').value = board.title;
 
-                // 내용은 div에 innerHTML로 채웁니다.
+                // 내용은 div에 innerHTML로 채움
                 menuForm.querySelector('#contentDisplay').innerHTML = board.content;
 
                 menuForm.querySelector('#nick').value = memberNick;

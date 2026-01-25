@@ -258,6 +258,8 @@ public class BoardRestController {
 
         // 여기서 전송된 로그인된 사용자 정보는 댓글 기능에도 사용되어야만 한다.
         // BoardWithWriter에 있는 변수 중 loginNum에 로그인된 사용자 정보를 담아야 함.
+        // 로그인된 사용자 정보를 담음. 여기서 담긴 로그인된 사용자 정보는 프론트로 옮겨진 후 CSR기반의 댓글 CRUD 로직에 쓰일 예정임.
+        board.setLoginNum(user.getUserNum());
 
         return ResponseEntity.ok(board); // HTTP 상태메시지가 200대인지 확인하여 그렇다면 데이터를 백에서 프론트로 넘김
     }
