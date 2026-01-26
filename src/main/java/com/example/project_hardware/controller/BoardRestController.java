@@ -372,6 +372,9 @@ public class BoardRestController {
     public ResponseEntity<String> commentWrite(Authentication authentication, @RequestBody Comment comment) {
         // Authentication 사실은 필요가 크게 없지만(프론트단에서 로그인 회원 정보 입력되어 넘어올거라)
         // 일단은 그냥 남겨둔다
+        // 260126 수정 - Authentication 여부에 따라 댓글 입력을 거부해야 한다 - Authentication이 안 되어 있으면 댓글이 입력되지
+        // 않아야 함.
+
         boardService.writeComment(comment);
         return null;
     }

@@ -53,7 +53,7 @@
     <form id="commentinsert">
         <input type="text" id="userNum2" name="userNum" value="\${board.loginNum}" readonly>
         <input type="text" id="contentcomment" name="content">
-        <button>댓글등록</button>
+        <button id="commentaddbutton">댓글등록</button>
         <!-- 이때 로그인되어 있지 않으면 댓글 등록버튼을 물리적으로 띄우지 않거나 등록버튼을 눌러도 로그인하라는 이야기만 띄우도록 설계 예정 -->
     </form>
 </div>
@@ -226,6 +226,15 @@
                 alert(error.message);
             });
     });
+
+    document.getElementById('commentaddbutton').addEventListener('click', function() {
+        // 댓글 추가 후 댓글 창을 업데이트 하는 로직 있을 예정
+        fetch(`/api/v1/comment/write/${boardNo}`, {
+
+        })
+
+
+    })
 </script>
 
 </body>
