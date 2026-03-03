@@ -230,8 +230,28 @@
     document.getElementById('commentaddbutton').addEventListener('click', function() {
         // 댓글 추가 후 댓글 창을 업데이트 하는 로직 있을 예정
         fetch(`/api/v1/comment/write/${boardNo}`, {
-
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body:  JSON.stringify(commentinsert)
         })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(errorMsg => {
+                        throw new Error(errorMsg || "서버가 응답하지 않습니다.");
+                    });
+                }
+                // 서버에서 ok 메시지 보냈을때
+                return response.text();
+            })
+            .then(successMsg => {
+                window.location.href = '/bbs/board';
+            })
+            .catch(error => {
+                //error객체에 백엔드로부터 온 에러 메시지가 들어있는데 error를 떼려면 error.message쓰면 된다.
+                alert(error.message);
+            });
 
 
     })
