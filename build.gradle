@@ -34,7 +34,7 @@ dependencies {
     implementation 'org.springframework.data:spring-data-commons'
     // DB Connector(H2DB and MySQL)
     runtimeOnly 'com.h2database:h2'
-    runtimeOnly 'com.mysql:mysql-connector-j'
+    implementation 'com.mysql:mysql-connector-j'
     // 테스트 관련 의존성
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4'

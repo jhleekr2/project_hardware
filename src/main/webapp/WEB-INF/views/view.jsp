@@ -227,14 +227,26 @@
             });
     });
 
-    document.getElementById('commentaddbutton').addEventListener('click', function() {
+    document.getElementById('commentaddbutton').addEventListener('click', function(e) {
+        e.preventDefault();
+
+        const commentinsert = document.getElementById("commentinsert");
+        const formData = new FormData(commentinsert);
+
+        const data = {
+            userNum: formData.get("userNum"),
+            content: formData.get("content")
+        };
+
+        console.log(data);
+
         // 댓글 추가 후 댓글 창을 업데이트 하는 로직 있을 예정
         fetch(`/api/v1/comment/write/${boardNo}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body:  JSON.stringify(commentinsert)
+            body: JSON.stringify(data)
         })
             .then(response => {
                 if (!response.ok) {
